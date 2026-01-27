@@ -9,7 +9,7 @@
             "binaryDir": "${sourceDir}/build",
             "toolchainFile": "${sourceDir}/tools/arm-gcc-toolchain.cmake",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         }
     ]
