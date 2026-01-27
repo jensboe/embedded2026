@@ -21,6 +21,18 @@ add_library(stm32f446ze STATIC)
 target_compile_definitions(stm32f446ze PUBLIC
     STM32F446xx
 )
+target_compile_options(stm32f446ze PUBLIC
+    -mcpu=cortex-m4
+    -mthumb
+    -mfpu=fpv4-sp-d16
+    -mfloat-abi=hard
+)
+target_link_options(stm32f446ze PUBLIC
+    -mcpu=cortex-m4
+    -mthumb
+    -mfpu=fpv4-sp-d16
+    -mfloat-abi=hard
+)
 
 target_link_libraries(stm32f446ze PUBLIC
     cmsisdevicef4
