@@ -1,1 +1,6 @@
-add_subdirectory(STM32F446ZE)
+add_library(CMSIS_5 INTERFACE)
+target_include_directories(CMSIS_5 INTERFACE
+    ${CMAKE_SOURCE_DIR}/external/CMSIS_5/CMSIS/Core/Include
+)
+
+add_subdirectory(STM32)
