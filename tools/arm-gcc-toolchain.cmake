@@ -18,5 +18,21 @@ set(CMAKE_OBJCOPY ${ARM_OBJCOPY})
 set(CMAKE_OBJDUMP ${ARM_OBJDUMP})
 set(CMAKE_SIZE ${ARM_SIZE})
 
+set(CMAKE_EXECUTABLE_SUFFIX_ASM ".elf")
+set(CMAKE_EXECUTABLE_SUFFIX_C ".elf")
+set(CMAKE_EXECUTABLE_SUFFIX_CXX ".elf")
+
+
 # Don't run the linker during compiler tests
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${TARGET_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wpedantic -fdata-sections -ffunction-sections")
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g3")
+endif()
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Os -g0")
+endif()
+
+set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp -MMD -MP")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fno-rtti -fno-exceptions -fno-threadsafe-statics")

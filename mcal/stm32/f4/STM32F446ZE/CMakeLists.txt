@@ -28,4 +28,9 @@ target_link_libraries(stm32f446ze PUBLIC
 
 target_link_options(stm32f446ze PUBLIC
     -T${CMAKE_CURRENT_SOURCE_DIR}/STM32F446ZETX_FLASH.ld
+    --specs=nano.specs
+    -Wl,-Map=${CMAKE_PROJECT_NAME}.map -Wl,--gc-sections
+    -Wl,--start-group -lc -lm -Wl,--end-group
+    -Wl,--print-memory-usage
+    -Wl,--start-group -lstdc++ -lsupc++ -Wl,--end-group
 )
