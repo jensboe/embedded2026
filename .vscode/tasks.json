@@ -12,6 +12,31 @@
 			"group": "build",
 			"problemMatcher": [],
 			"detail": "CMake template build task"
+		},
+		{
+			"label": "puncover: start server",
+			"type": "shell",
+			"command": "uvx",
+			"args": [
+				"puncover",
+				"--elf",
+				"${command:cmake.launchTargetPath}",
+				"--src_root",
+				"${workspaceFolder}",
+				"--build_dir",
+				"${workspaceFolder}/build"
+			],
+			"group": "none",
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			},
+			"isBackground": true,
+			"problemMatcher": []
 		}
 	]
 }
