@@ -1,7 +1,7 @@
 #include "concept/gpio.hpp"
 #include "stm32f4xx.h"
 template <uint32_t GPIO_BASE, uint32_t RCC_AHB1ENR_GPIOxEN>
-struct stm32f4gpio
+struct GpioImpl
 {
 private:
     static GPIO_TypeDef *getGpio()
@@ -32,14 +32,14 @@ public:
     static void writeLow(uint8_t pin) { reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE)->ODR &= ~(1 << pin); }
 };
 
-using GpioA = stm32f4gpio<GPIOA_BASE, RCC_AHB1ENR_GPIOAEN>;
-using GpioB = stm32f4gpio<GPIOB_BASE, RCC_AHB1ENR_GPIOBEN>;
-using GpioC = stm32f4gpio<GPIOC_BASE, RCC_AHB1ENR_GPIOCEN>;
-using GpioD = stm32f4gpio<GPIOD_BASE, RCC_AHB1ENR_GPIODEN>;
-using GpioE = stm32f4gpio<GPIOE_BASE, RCC_AHB1ENR_GPIOEEN>;
-using GpioF = stm32f4gpio<GPIOF_BASE, RCC_AHB1ENR_GPIOFEN>;
-using GpioG = stm32f4gpio<GPIOG_BASE, RCC_AHB1ENR_GPIOGEN>;
-using GpioH = stm32f4gpio<GPIOH_BASE, RCC_AHB1ENR_GPIOHEN>;
+using GpioA = GpioImpl<GPIOA_BASE, RCC_AHB1ENR_GPIOAEN>;
+using GpioB = GpioImpl<GPIOB_BASE, RCC_AHB1ENR_GPIOBEN>;
+using GpioC = GpioImpl<GPIOC_BASE, RCC_AHB1ENR_GPIOCEN>;
+using GpioD = GpioImpl<GPIOD_BASE, RCC_AHB1ENR_GPIODEN>;
+using GpioE = GpioImpl<GPIOE_BASE, RCC_AHB1ENR_GPIOEEN>;
+using GpioF = GpioImpl<GPIOF_BASE, RCC_AHB1ENR_GPIOFEN>;
+using GpioG = GpioImpl<GPIOG_BASE, RCC_AHB1ENR_GPIOGEN>;
+using GpioH = GpioImpl<GPIOH_BASE, RCC_AHB1ENR_GPIOHEN>;
 
 
 template <GpioPort Port, uint8_t Pin, GpioPinMode Mode = GpioPinMode::Input>
