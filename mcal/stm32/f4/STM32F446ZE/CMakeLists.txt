@@ -1,5 +1,9 @@
 add_library(stm32f446ze STATIC)
 
+target_include_directories(stm32f446ze PUBLIC
+    inc
+)
+
 target_compile_definitions(stm32f446ze PUBLIC
     STM32F446xx
 )
@@ -19,6 +23,7 @@ target_link_options(stm32f446ze PUBLIC
 
 target_link_libraries(stm32f446ze PUBLIC
     cmsisdevicef4
+    mcal
 )
 
 target_link_options(stm32f446ze PUBLIC
