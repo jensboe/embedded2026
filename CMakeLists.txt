@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 4.0)
 
 project(embedded2026 C CXX ASM)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 23)
@@ -11,9 +11,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Build Configuration Information
 # =============================================================================
 message(STATUS "")
-message(STATUS "╔════════════════════════════════════════════════════════════╗")
-message(STATUS "║           embedded2026 - Build Configuration               ║")
-message(STATUS "╚════════════════════════════════════════════════════════════╝")
+message(STATUS "embedded2026 - Build Configuration")
+
 
 # System & Compiler Info
 message(STATUS "")
@@ -55,13 +54,7 @@ message(STATUS "  • CXX Flags: ${CMAKE_CXX_FLAGS}")
 message(STATUS "  • CXX Flags (Debug): ${CMAKE_CXX_FLAGS_DEBUG}")
 message(STATUS "  • CXX Flags (Release): ${CMAKE_CXX_FLAGS_RELEASE}")
 
-message(STATUS "")
-message(STATUS "════════════════════════════════════════════════════════════")
-message(STATUS "")
 
-# =============================================================================
-# Custom Function: Print Build Summary at Build Time
-# =============================================================================
 function(add_build_info_target TARGET_NAME)
     add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E echo ""
@@ -76,7 +69,7 @@ function(add_build_info_target TARGET_NAME)
         COMMAND ${CMAKE_COMMAND} -E echo ""
         VERBATIM
     )
-    
+
     add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E echo ""
         COMMAND ${CMAKE_COMMAND} -E echo "Build Complete: ${TARGET_NAME}"
@@ -86,4 +79,4 @@ function(add_build_info_target TARGET_NAME)
 endfunction()
 
 add_subdirectory(mcal)
-add_subdirectory(projects) 
+add_subdirectory(projects)

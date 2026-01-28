@@ -1,8 +1,15 @@
 #include "concept/gpio.hpp"
 #include "stm32f4xx.h"
-
-struct Stm32GpioB
+template <uint32_t GPIO_BASE>
+struct stm32f4gpio
 {
+private:
+    static GPIO_TypeDef *getGpio()
+    {
+        return reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE);
+    }
+
+public:
     static void enableClock() { RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; }
     static void setModeOutput(uint8_t pin)
     {
@@ -13,8 +20,10 @@ struct Stm32GpioB
     static void writeLow(uint8_t pin) { GPIOB->ODR &= ~(1 << pin); }
 };
 
+using GpioB = stm32f4gpio<GPIOB_BASE>;
+
 template <GpioPort Port, uint8_t Pin>
-struct Gpio
+struct GpioPin
 {
     static void init()
     {
