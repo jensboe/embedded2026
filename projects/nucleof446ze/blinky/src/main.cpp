@@ -1,9 +1,9 @@
 #include <cstdint>
 #include "gpio.hpp"
 
-using LD_Green = GpioPin<GpioB, 0>;
-using LD_Blue  = GpioPin<GpioB, 7>;
-using LD_Red   = GpioPin<GpioB, 14>; 
+using LD_Green = GpioPin<GpioB, 0, GpioPinMode::Output>;
+using LD_Blue  = GpioPin<GpioB, 7, GpioPinMode::Output>;
+using LD_Red   = GpioPin<GpioB, 14, GpioPinMode::Output>; 
 
 int main(void)
 {

@@ -10,14 +10,26 @@ private:
     }
 
 public:
-    static void enableClock() { RCC->AHB1ENR |= RCC_AHB1ENR_GPIOxEN; }
-    static void setModeOutput(uint8_t pin)
+    static void enable() { RCC->AHB1ENR |= RCC_AHB1ENR_GPIOxEN; }
+    static void disable() { RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOxEN; }
+
+    template <GpioPinMode M>
+    static void setMode(uint8_t pin)
     {
-        GPIOB->MODER &= ~(0b11 << (pin * 2));
-        GPIOB->MODER |= (0b01 << (pin * 2));
+        GPIO_TypeDef *gpio = reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE);
+        gpio->MODER &= ~(0b11 << (pin * 2));
+        if constexpr (M == GpioPinMode::Output)
+        {
+            gpio->MODER |= (0b01 << (pin * 2));
+        }
+        else if constexpr (M == GpioPinMode::Input)
+        {
+            // nothing to to, its empty
+        }
     }
-    static void writeHigh(uint8_t pin) { GPIOB->ODR |= (1 << pin); }
-    static void writeLow(uint8_t pin) { GPIOB->ODR &= ~(1 << pin); }
+
+    static void writeHigh(uint8_t pin) { reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE)->ODR |= (1 << pin); }
+    static void writeLow(uint8_t pin) { reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE)->ODR &= ~(1 << pin); }
 };
 
 using GpioA = stm32f4gpio<GPIOA_BASE, RCC_AHB1ENR_GPIOAEN>;
@@ -30,13 +42,13 @@ using GpioG = stm32f4gpio<GPIOG_BASE, RCC_AHB1ENR_GPIOGEN>;
 using GpioH = stm32f4gpio<GPIOH_BASE, RCC_AHB1ENR_GPIOHEN>;
 
 
-template <GpioPort Port, uint8_t Pin>
+template <GpioPort Port, uint8_t Pin, GpioPinMode Mode = GpioPinMode::Input>
 struct GpioPin
 {
     static void init()
     {
-        Port::enableClock();
-        Port::setModeOutput(Pin);
+        Port::enable();
+        Port::template setMode<Mode>(Pin);
     }
     static void set() { Port::writeHigh(Pin); }
     static void clear() { Port::writeLow(Pin); }
