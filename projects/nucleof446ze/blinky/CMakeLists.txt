@@ -8,3 +8,6 @@ target_sources(blinky
 )
 
 target_link_libraries(blinky PRIVATE stm32f446ze)
+
+# Add build information output
+add_build_info_target(blinky)
