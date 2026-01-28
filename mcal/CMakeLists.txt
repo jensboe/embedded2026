@@ -8,6 +8,8 @@ target_include_directories(mcal INTERFACE
     inc
 )
 
-
+target_link_options(mcal INTERFACE
+    --specs=nano.specs
+)
 
 add_subdirectory(STM32)

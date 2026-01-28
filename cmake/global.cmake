@@ -7,6 +7,12 @@ add_compile_options(
     -Werror
     -fstack-usage
 )
+add_link_options(
+    -Wl,--gc-sections
+    -Wl,--start-group -lc -lm -Wl,--end-group
+    -Wl,--print-memory-usage
+    -Wl,--start-group -lstdc++ -lsupc++ -Wl,--end-group
+)
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -g3")
 endif()
