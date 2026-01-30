@@ -12,7 +12,7 @@ private:
     }
     static constexpr RCC_TypeDef *rcc()
     {
-        return reinterpret_cast<RCC_TypeDef *>(GPIO_BASE);
+        return reinterpret_cast<RCC_TypeDef *>(RCC_BASE);
     }
 
 public:
