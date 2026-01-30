@@ -21,9 +21,23 @@ struct GpioImpl
         }
     }
     template <uint8_t pin>
-    static void writeHigh() { reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE)->ODR |= (1 << pin); }
+    static void writeHigh()
+    {
+        static_assert(pin < 16, "GPIO pin index must be < 16");
+        reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE)->ODR |= (1 << pin);
+    }
     template <uint8_t pin>
-    static void writeLow() { reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE)->ODR &= ~(1 << pin); }
+    static void writeLow()
+    {
+        static_assert(pin < 16, "GPIO pin index must be < 16");
+        reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE)->ODR &= ~(1 << pin);
+    }
+    template <uint8_t pin>
+    static bool read()
+    {
+        static_assert(pin < 16, "GPIO pin index must be < 16");
+        return reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE)->IDR & (1 << pin);
+    }
 };
 
 using GpioA = GpioImpl<GPIOA_BASE, RCC_AHB1ENR_GPIOAEN>;
@@ -35,9 +49,19 @@ using GpioF = GpioImpl<GPIOF_BASE, RCC_AHB1ENR_GPIOFEN>;
 using GpioG = GpioImpl<GPIOG_BASE, RCC_AHB1ENR_GPIOGEN>;
 using GpioH = GpioImpl<GPIOH_BASE, RCC_AHB1ENR_GPIOHEN>;
 
+static_assert(GpioPort<GpioA>);
+static_assert(GpioPort<GpioB>);
+static_assert(GpioPort<GpioC>);
+static_assert(GpioPort<GpioD>);
+static_assert(GpioPort<GpioE>);
+static_assert(GpioPort<GpioF>);
+static_assert(GpioPort<GpioG>);
+static_assert(GpioPort<GpioH>);
+
 template <GpioPort Port, uint8_t Pin, GpioPinMode Mode = GpioPinMode::Input>
 struct GpioPin
 {
+    static_assert(Pin < 16, "GPIO pin index must be < 16");
     static void init()
     {
         Port::enable();

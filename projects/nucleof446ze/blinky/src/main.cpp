@@ -3,7 +3,7 @@
 
 using LD_Green = GpioPin<GpioB, 0, GpioPinMode::Output>;
 using LD_Blue  = GpioPin<GpioB, 7, GpioPinMode::Output>;
-using LD_Red   = GpioPin<GpioB, 14, GpioPinMode::Output>; 
+using LD_Red   = GpioPin<GpioB, 14, GpioPinMode::Output>;
 
 int main(void)
 {
