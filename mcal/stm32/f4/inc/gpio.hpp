@@ -1,5 +1,7 @@
 #include "concept/gpio.hpp"
 #include "stm32f4xx.h"
+
+
 template <uint32_t GPIO_BASE, uint32_t RCC_AHB1ENR_GPIOxEN>
 struct GpioImpl
 {
@@ -8,10 +10,20 @@ private:
     {
         return reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE);
     }
+    static constexpr RCC_TypeDef *rcc()
+    {
+        return reinterpret_cast<RCC_TypeDef *>(GPIO_BASE);
+    }
 
 public:
-    static void enable() { RCC->AHB1ENR |= RCC_AHB1ENR_GPIOxEN; }
-    static void disable() { RCC->AHB1ENR &= ~RCC_AHB1ENR_GPIOxEN; }
+    static void enable()
+    {
+        rcc()->AHB1ENR |= RCC_AHB1ENR_GPIOxEN;
+    }
+    static void disable()
+    {
+        rcc()->AHB1ENR &= ~RCC_AHB1ENR_GPIOxEN;
+    }
 
     template <uint8_t pin, GpioPinMode M>
     static void setMode()
