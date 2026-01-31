@@ -1,9 +1,12 @@
 #include "delay.hpp"
 #include "gpio.hpp"
 
+using namespace mcal::stm32::f4;
+
 using LD_Green = GpioPin<GpioB, 0, GpioPinMode::Output>;
 using LD_Blue = GpioPin<GpioB, 7, GpioPinMode::Output>;
 using LD_Red = GpioPin<GpioB, 14, GpioPinMode::Output>;
+using Delay = DelayImpl<16'000'000>;
 
 int main(void)
 {

@@ -1,122 +1,125 @@
 #pragma once
 #include "concept/gpio.hpp"
 #include "stm32f4xx.h"
-
-template <uint32_t GPIO_BASE, uint32_t RCC_AHB1ENR_GPIOxEN>
-struct GpioImpl
+namespace mcal::stm32::f4
 {
-  private:
-	static constexpr GPIO_TypeDef *gpio()
+	using namespace mcal::concepts;
+	template <uint32_t GPIO_BASE, uint32_t RCC_AHB1ENR_GPIOxEN>
+	struct GpioImpl
 	{
-		return reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE);
-	}
-	static constexpr RCC_TypeDef *rcc()
-	{
-		return reinterpret_cast<RCC_TypeDef *>(RCC_BASE);
-	}
-
-  public:
-	static void enable()
-	{
-		rcc()->AHB1ENR |= RCC_AHB1ENR_GPIOxEN;
-	}
-	static void disable()
-	{
-		rcc()->AHB1ENR &= ~RCC_AHB1ENR_GPIOxEN;
-	}
-
-	template <uint8_t pin, GpioPinMode M>
-	static void setMode()
-	{
-		gpio()->MODER &= ~(0b11 << (pin * 2));
-		if constexpr (M == GpioPinMode::Output)
+	  private:
+		static constexpr GPIO_TypeDef *gpio()
 		{
-			gpio()->MODER |= (0b01 << (pin * 2));
+			return reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE);
 		}
-		else if constexpr (M == GpioPinMode::Input)
+		static constexpr RCC_TypeDef *rcc()
 		{
-			// nothing to to, its empty
+			return reinterpret_cast<RCC_TypeDef *>(RCC_BASE);
 		}
-	}
-	template <uint8_t pin>
-	static void writeHigh()
+
+	  public:
+		static void enable()
+		{
+			rcc()->AHB1ENR |= RCC_AHB1ENR_GPIOxEN;
+		}
+		static void disable()
+		{
+			rcc()->AHB1ENR &= ~RCC_AHB1ENR_GPIOxEN;
+		}
+
+		template <uint8_t pin, GpioPinMode M>
+		static void setMode()
+		{
+			gpio()->MODER &= ~(0b11 << (pin * 2));
+			if constexpr (M == GpioPinMode::Output)
+			{
+				gpio()->MODER |= (0b01 << (pin * 2));
+			}
+			else if constexpr (M == GpioPinMode::Input)
+			{
+				// nothing to to, its empty
+			}
+		}
+		template <uint8_t pin>
+		static void writeHigh()
+		{
+			static_assert(pin < 16, "GPIO pin index must be < 16");
+			gpio()->ODR |= (1 << pin);
+		}
+		template <uint8_t pin>
+		static void writeLow()
+		{
+			static_assert(pin < 16, "GPIO pin index must be < 16");
+			gpio()->ODR &= ~(1 << pin);
+		}
+		template <uint8_t pin>
+		static bool read()
+		{
+			static_assert(pin < 16, "GPIO pin index must be < 16");
+			return gpio()->IDR & (1 << pin);
+		}
+	};
+	template <GpioPort Port, uint8_t Pin, GpioPinMode Mode = GpioPinMode::Input>
+	struct GpioPin
 	{
-		static_assert(pin < 16, "GPIO pin index must be < 16");
-		gpio()->ODR |= (1 << pin);
-	}
-	template <uint8_t pin>
-	static void writeLow()
-	{
-		static_assert(pin < 16, "GPIO pin index must be < 16");
-		gpio()->ODR &= ~(1 << pin);
-	}
-	template <uint8_t pin>
-	static bool read()
-	{
-		static_assert(pin < 16, "GPIO pin index must be < 16");
-		return gpio()->IDR & (1 << pin);
-	}
-};
-template <GpioPort Port, uint8_t Pin, GpioPinMode Mode = GpioPinMode::Input>
-struct GpioPin
-{
-	static_assert(Pin < 16, "GPIO pin index must be < 16");
-	static void init()
-	{
-		Port::enable();
-		Port::template setMode<Pin, Mode>();
-	}
-	static void set()
-	{
-		Port::template writeHigh<Pin>();
-	}
-	static void clear()
-	{
-		Port::template writeLow<Pin>();
-	}
-};
+		static_assert(Pin < 16, "GPIO pin index must be < 16");
+		static void init()
+		{
+			Port::enable();
+			Port::template setMode<Pin, Mode>();
+		}
+		static void set()
+		{
+			Port::template writeHigh<Pin>();
+		}
+		static void clear()
+		{
+			Port::template writeLow<Pin>();
+		}
+	};
 
 #ifdef GPIOA_BASE
-using GpioA = GpioImpl<GPIOA_BASE, RCC_AHB1ENR_GPIOAEN>;
-static_assert(GpioPort<GpioA>);
+	using GpioA = GpioImpl<GPIOA_BASE, RCC_AHB1ENR_GPIOAEN>;
+	static_assert(GpioPort<GpioA>);
 #endif
 #ifdef GPIOB_BASE
-using GpioB = GpioImpl<GPIOB_BASE, RCC_AHB1ENR_GPIOBEN>;
-static_assert(GpioPort<GpioB>);
+	using GpioB = GpioImpl<GPIOB_BASE, RCC_AHB1ENR_GPIOBEN>;
+	static_assert(GpioPort<GpioB>);
 #endif
 #ifdef GPIOC_BASE
-using GpioC = GpioImpl<GPIOC_BASE, RCC_AHB1ENR_GPIOCEN>;
-static_assert(GpioPort<GpioC>);
+	using GpioC = GpioImpl<GPIOC_BASE, RCC_AHB1ENR_GPIOCEN>;
+	static_assert(GpioPort<GpioC>);
 #endif
 #ifdef GPIOD_BASE
-using GpioD = GpioImpl<GPIOD_BASE, RCC_AHB1ENR_GPIODEN>;
-static_assert(GpioPort<GpioD>);
+	using GpioD = GpioImpl<GPIOD_BASE, RCC_AHB1ENR_GPIODEN>;
+	static_assert(GpioPort<GpioD>);
 #endif
 #ifdef GPIOE_BASE
-using GpioE = GpioImpl<GPIOE_BASE, RCC_AHB1ENR_GPIOEEN>;
-static_assert(GpioPort<GpioE>);
+	using GpioE = GpioImpl<GPIOE_BASE, RCC_AHB1ENR_GPIOEEN>;
+	static_assert(GpioPort<GpioE>);
 #endif
 #ifdef GPIOF_BASE
-using GpioF = GpioImpl<GPIOF_BASE, RCC_AHB1ENR_GPIOFEN>;
-static_assert(GpioPort<GpioF>);
+	using GpioF = GpioImpl<GPIOF_BASE, RCC_AHB1ENR_GPIOFEN>;
+	static_assert(GpioPort<GpioF>);
 #endif
 #ifdef GPIOG_BASE
-using GpioG = GpioImpl<GPIOG_BASE, RCC_AHB1ENR_GPIOGEN>;
-static_assert(GpioPort<GpioG>);
+	using GpioG = GpioImpl<GPIOG_BASE, RCC_AHB1ENR_GPIOGEN>;
+	static_assert(GpioPort<GpioG>);
 #endif
 #ifdef GPIOH_BASE
-using GpioH = GpioImpl<GPIOH_BASE, RCC_AHB1ENR_GPIOHEN>;
-static_assert(GpioPort<GpioH>);
+	using GpioH = GpioImpl<GPIOH_BASE, RCC_AHB1ENR_GPIOHEN>;
+	static_assert(GpioPort<GpioH>);
 #endif
 #ifdef GPIOI_BASE
-using GpioI = GpioImpl<GPIOI_BASE, RCC_AHB1ENR_GPIOIEN>;
-static_assert(GpioPort<GpioH>);
+	using GpioI = GpioImpl<GPIOI_BASE, RCC_AHB1ENR_GPIOIEN>;
+	static_assert(GpioPort<GpioH>);
 #endif
 #ifdef GPIOJ_BASE
-using GpioJ = GpioImpl<GPIOJ_BASE, RCC_AHB1ENR_GPIOJEN>;
-static_assert(GpioPort<GpioJ>);
+	using GpioJ = GpioImpl<GPIOJ_BASE, RCC_AHB1ENR_GPIOJEN>;
+	static_assert(GpioPort<GpioJ>);
 #endif
 #ifdef GPIOK_BASE
-using GpioK = GpioImpl<GPIOK_BASE, RCC_AHB1ENR_GPIOKEN>;
-static_assert(GpioPort<GpioK>);
+	using GpioK = GpioImpl<GPIOK_BASE, RCC_AHB1ENR_GPIOKEN>;
+	static_assert(GpioPort<GpioK>);
 #endif
+} // namespace mcal::stm32::f4
