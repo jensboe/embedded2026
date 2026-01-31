@@ -1,0 +1,9 @@
+﻿---
+BasedOnStyle: Microsoft
+AlwaysBreakTemplateDeclarations: 'Yes'
+Language: Cpp
+NamespaceIndentation: All
+TabWidth: '4'
+UseTab: Always
+
+...

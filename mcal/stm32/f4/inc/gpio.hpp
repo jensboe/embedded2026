@@ -1,73 +1,78 @@
 #include "concept/gpio.hpp"
 #include "stm32f4xx.h"
 
-
 template <uint32_t GPIO_BASE, uint32_t RCC_AHB1ENR_GPIOxEN>
 struct GpioImpl
 {
-private:
-    static constexpr GPIO_TypeDef *gpio()
-    {
-        return reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE);
-    }
-    static constexpr RCC_TypeDef *rcc()
-    {
-        return reinterpret_cast<RCC_TypeDef *>(RCC_BASE);
-    }
+  private:
+	static constexpr GPIO_TypeDef *gpio()
+	{
+		return reinterpret_cast<GPIO_TypeDef *>(GPIO_BASE);
+	}
+	static constexpr RCC_TypeDef *rcc()
+	{
+		return reinterpret_cast<RCC_TypeDef *>(RCC_BASE);
+	}
 
-public:
-    static void enable()
-    {
-        rcc()->AHB1ENR |= RCC_AHB1ENR_GPIOxEN;
-    }
-    static void disable()
-    {
-        rcc()->AHB1ENR &= ~RCC_AHB1ENR_GPIOxEN;
-    }
+  public:
+	static void enable()
+	{
+		rcc()->AHB1ENR |= RCC_AHB1ENR_GPIOxEN;
+	}
+	static void disable()
+	{
+		rcc()->AHB1ENR &= ~RCC_AHB1ENR_GPIOxEN;
+	}
 
-    template <uint8_t pin, GpioPinMode M>
-    static void setMode()
-    {
-        gpio()->MODER &= ~(0b11 << (pin * 2));
-        if constexpr (M == GpioPinMode::Output)
-        {
-            gpio()->MODER |= (0b01 << (pin * 2));
-        }
-        else if constexpr (M == GpioPinMode::Input)
-        {
-            // nothing to to, its empty
-        }
-    }
-    template <uint8_t pin>
-    static void writeHigh()
-    {
-        static_assert(pin < 16, "GPIO pin index must be < 16");
-        gpio()->ODR |= (1 << pin);
-    }
-    template <uint8_t pin>
-    static void writeLow()
-    {
-        static_assert(pin < 16, "GPIO pin index must be < 16");
-        gpio()->ODR &= ~(1 << pin);
-    }
-    template <uint8_t pin>
-    static bool read()
-    {
-        static_assert(pin < 16, "GPIO pin index must be < 16");
-        return gpio()->IDR & (1 << pin);
-    }
+	template <uint8_t pin, GpioPinMode M>
+	static void setMode()
+	{
+		gpio()->MODER &= ~(0b11 << (pin * 2));
+		if constexpr (M == GpioPinMode::Output)
+		{
+			gpio()->MODER |= (0b01 << (pin * 2));
+		}
+		else if constexpr (M == GpioPinMode::Input)
+		{
+			// nothing to to, its empty
+		}
+	}
+	template <uint8_t pin>
+	static void writeHigh()
+	{
+		static_assert(pin < 16, "GPIO pin index must be < 16");
+		gpio()->ODR |= (1 << pin);
+	}
+	template <uint8_t pin>
+	static void writeLow()
+	{
+		static_assert(pin < 16, "GPIO pin index must be < 16");
+		gpio()->ODR &= ~(1 << pin);
+	}
+	template <uint8_t pin>
+	static bool read()
+	{
+		static_assert(pin < 16, "GPIO pin index must be < 16");
+		return gpio()->IDR & (1 << pin);
+	}
 };
 template <GpioPort Port, uint8_t Pin, GpioPinMode Mode = GpioPinMode::Input>
 struct GpioPin
 {
-    static_assert(Pin < 16, "GPIO pin index must be < 16");
-    static void init()
-    {
-        Port::enable();
-        Port::template setMode<Pin, Mode>();
-    }
-    static void set() { Port::template writeHigh<Pin>(); }
-    static void clear() { Port::template writeLow<Pin>(); }
+	static_assert(Pin < 16, "GPIO pin index must be < 16");
+	static void init()
+	{
+		Port::enable();
+		Port::template setMode<Pin, Mode>();
+	}
+	static void set()
+	{
+		Port::template writeHigh<Pin>();
+	}
+	static void clear()
+	{
+		Port::template writeLow<Pin>();
+	}
 };
 
 #ifdef GPIOA_BASE
