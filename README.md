@@ -33,4 +33,3 @@ embedded2026/
 - **CMake** >= 4.0
 - **ARM GCC Toolchain**: `arm-none-eabi-gcc`
 - **Ninja** or **Make** (build system)
-
