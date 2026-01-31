@@ -1,3 +1,4 @@
+#pragma once
 #include "concept/gpio.hpp"
 #include "stm32f4xx.h"
 
