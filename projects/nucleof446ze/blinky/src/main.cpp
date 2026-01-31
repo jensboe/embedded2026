@@ -1,23 +1,24 @@
 #include <cstdint>
-#include "stm32f4xx.h"
+#include "gpio.hpp"
+
+using LD_Green = GpioPin<GpioB, 0, GpioPinMode::Output>;
+using LD_Blue = GpioPin<GpioB, 7, GpioPinMode::Output>;
+using LD_Red = GpioPin<GpioB, 14, GpioPinMode::Output>;
 
 int main(void)
 {
-    
-    // Enable GPIO B clock
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+    LD_Green::init();
+    LD_Blue::init();
+    LD_Red::init();
 
-    // Configure PB0 (LED) as output
-    GPIOB->MODER |= GPIO_MODER_MODE0_0; // Set PA5 to output mode
-
-    // Main loop
     while (1)
     {
-        // Turn LED on
-        GPIOB->ODR |= (1 << 0);
-
-        // Turn LED off
-        GPIOB->ODR &= ~(1 << 0);
+        LD_Green::set();
+        LD_Blue::set();
+        LD_Red::set();
+        LD_Green::clear();
+        LD_Blue::clear();
+        LD_Red::clear();
     }
 
     return 0;

@@ -2,14 +2,25 @@
     "version": 8,
     "configurePresets": [
         {
-            "name": "Embedded2026",
-            "displayName": "Custom configure preset",
+            "name": "Embedded2026 Debug",
+            "displayName": "Debug Build for Embedded2026",
             "description": "Sets Ninja generator, build and install directory",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build",
             "toolchainFile": "${sourceDir}/tools/arm-gcc-toolchain.cmake",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "Embedded2026 Release",
+            "displayName": "Release Build for Embedded2026",
+            "description": "Sets Ninja generator, build and install directory",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "toolchainFile": "${sourceDir}/tools/arm-gcc-toolchain.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo" 
             }
         }
     ]
