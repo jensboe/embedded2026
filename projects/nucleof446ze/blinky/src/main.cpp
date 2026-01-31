@@ -1,5 +1,5 @@
+#include "delay.hpp"
 #include "gpio.hpp"
-#include <cstdint>
 
 using LD_Green = GpioPin<GpioB, 0, GpioPinMode::Output>;
 using LD_Blue = GpioPin<GpioB, 7, GpioPinMode::Output>;
@@ -16,9 +16,11 @@ int main(void)
 		LD_Green::set();
 		LD_Blue::set();
 		LD_Red::set();
+		Delay::ms(500);
 		LD_Green::clear();
 		LD_Blue::clear();
 		LD_Red::clear();
+		Delay::ms(500);
 	}
 
 	return 0;
