@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 4.0)
-
-project(embedded2026 C CXX ASM)
+project(embedded2026)
+enable_language(C CXX ASM)
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+include(cmake/global.cmake)
 
 add_subdirectory(mcal)
 add_subdirectory(projects)
