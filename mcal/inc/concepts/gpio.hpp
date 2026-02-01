@@ -1,14 +1,35 @@
+/**
+ * @file gpio.hpp
+ * @brief GPIO abstraction layer for mcal.
+ *
+ */
 #pragma once
 #include <concepts>
 #include <cstdint>
 namespace mcal::concepts
 {
+	/**
+	 * @brief GPIO pin modes.
+	 *
+	 * @todo expand with more modes (alternate function, analog, pull-up, pull-down)
+	 *
+	 */
 	enum class GpioPinMode
 	{
 		Input,
 		Output,
 	};
 
+	/**
+	 * @brief GPIO port concept.
+	 *
+	 * This concept defines the required interface for a GPIO port
+	 * implementation. A GPIO port must provide methods to enable/disable
+	 * the port clock, set pin modes, and read/write pin states.
+	 *
+	 * @todo A toggle function is needed as well.
+	 *
+	 */
 	template <typename T>
 	concept GpioPort = requires(T t, uint8_t pin, GpioPinMode mode) {
 		{ T::enable() } -> std::same_as<void>;
