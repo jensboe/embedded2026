@@ -1,6 +1,6 @@
-#include "delay.hpp"
 #include "gpio.hpp"
-
+#include "utils.hpp"
+#include <cstdio>
 using namespace mcal::stm32::f4;
 
 using LD_Green = GpioPin<GpioB, 0, GpioPinMode::Output>;
@@ -10,12 +10,15 @@ using Delay = DelayImpl<16'000'000>;
 
 int main(void)
 {
+	init_print();
+	uint32_t loop_counter = 0;
 	LD_Green::init();
 	LD_Blue::init();
 	LD_Red::init();
 
 	while (1)
 	{
+		printf("Delay count: %lu\n", ++loop_counter);
 		LD_Green::set();
 		LD_Blue::set();
 		LD_Red::set();

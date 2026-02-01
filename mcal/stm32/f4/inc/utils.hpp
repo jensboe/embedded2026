@@ -34,4 +34,20 @@ namespace mcal::stm32::f4
 		}
 	};
 	static_assert(mcal::concepts::Delay<DelayImpl<>>);
+
+	void init_print()
+	{
+		DBGMCU->CR &= DBGMCU_CR_TRACE_MODE_Msk;
+		DBGMCU->CR |= DBGMCU_CR_TRACE_IOEN;
+	}
+
 } // namespace mcal::stm32::f4
+
+extern "C"
+{
+	int __io_putchar(int ch)
+	{
+		ITM_SendChar(ch);
+		return 0;
+	}
+}
