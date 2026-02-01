@@ -4,3 +4,6 @@
 [submodule "external/CMSIS_5"]
 	path = external/CMSIS_5
 	url = https://github.com/ARM-software/CMSIS_5
+[submodule "external/svd/stm32"]
+	path = external/svd/stm32
+	url = https://github.com/modm-io/cmsis-svd-stm32

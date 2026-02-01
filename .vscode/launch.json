@@ -16,7 +16,23 @@
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg"
             ],
-            "preLaunchTask": "CMake: build"
+            "preLaunchTask": "CMake: build",
+            "device": "STM32F446",
+            "svdFile": "external/svd/stm32/stm32f4/STM32F446.svd",
+            "swoConfig": {
+                "enabled": true,
+                "source": "probe",
+                "swoFrequency": 2000000,
+                "cpuFrequency": 16000000,
+                "decoders": [
+                    {
+                        "port": 0,
+                        "type": "console",
+                        "label": "SWO output",
+                        "encoding": "ascii"
+                    }
+                ]
+            }
         },
         {
             "name": "Run to first Breakpoint",
@@ -29,7 +45,23 @@
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg"
             ],
-            "preLaunchTask": "CMake: build"
+            "preLaunchTask": "CMake: build",
+            "device": "STM32F446",
+            "svdFile": "external/svd/stm32/stm32f4/STM32F446.svd",
+            "swoConfig": {
+                "enabled": true,
+                "source": "probe",
+                "swoFrequency": 2000000,
+                "cpuFrequency": 16000000,
+                "decoders": [
+                    {
+                        "port": 0,
+                        "type": "console",
+                        "label": "SWO output",
+                        "encoding": "ascii"
+                    }
+                ]
+            }
         },
     ]
 }
