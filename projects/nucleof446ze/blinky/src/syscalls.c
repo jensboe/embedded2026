@@ -20,7 +20,6 @@
  ******************************************************************************
  */
 
-/* Includes */
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
@@ -30,23 +29,46 @@
 #include <sys/times.h>
 #include <time.h>
 
-/* Variables */
+/**
+ * @brief Reference to exteral weakly defined put char function
+ *
+ */
 extern int __io_putchar(int ch) __attribute__((weak));
+/**
+ * @brief Reference to exteral weakly defined get char function
+ *
+ */
 extern int __io_getchar(void) __attribute__((weak));
 
 char *__env[1] = {0};
-char **environ = __env;
+char **environ = __env; //!< Environment pointer
 
-/* Functions */
+/**
+ * @brief Initialise monitor handles
+ *
+ */
 void initialise_monitor_handles()
 {
 }
+
+/**
+ * @brief Get process ID
+ *
+ * @return int
+ */
 
 int _getpid(void)
 {
 	return 1;
 }
 
+/**
+ * @brief Kill process
+ *
+ * @param pid
+ * @param sig
+ * @return int
+ */
 int _kill(int pid, int sig)
 {
 	(void)pid;
@@ -55,6 +77,11 @@ int _kill(int pid, int sig)
 	return -1;
 }
 
+/**
+ * @brief Exit process
+ *
+ * @param status
+ */
 void _exit(int status)
 {
 	_kill(status, -1);
@@ -63,6 +90,10 @@ void _exit(int status)
 	} /* Make sure we hang here */
 }
 
+/**
+ * @brief Read from file descriptor
+ *
+ */
 __attribute__((weak)) int _read(int file, char *ptr, int len)
 {
 	(void)file;
@@ -76,6 +107,10 @@ __attribute__((weak)) int _read(int file, char *ptr, int len)
 	return len;
 }
 
+/**
+ * @brief Write from file descriptor
+ *
+ */
 __attribute__((weak)) int _write(int file, char *ptr, int len)
 {
 	(void)file;
@@ -88,12 +123,20 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
 	return len;
 }
 
+/**
+ * @brief Close file descriptor
+ *
+ */
 int _close(int file)
 {
 	(void)file;
 	return -1;
 }
 
+/**
+ * @brief File status
+ *
+ */
 int _fstat(int file, struct stat *st)
 {
 	(void)file;
@@ -101,12 +144,20 @@ int _fstat(int file, struct stat *st)
 	return 0;
 }
 
+/**
+ * @brief Is a terminal
+ *
+ */
 int _isatty(int file)
 {
 	(void)file;
 	return 1;
 }
 
+/**
+ * @brief Set file position
+ *
+ */
 int _lseek(int file, int ptr, int dir)
 {
 	(void)file;
@@ -115,6 +166,10 @@ int _lseek(int file, int ptr, int dir)
 	return 0;
 }
 
+/**
+ * @brief Open file
+ *
+ */
 int _open(char *path, int flags, ...)
 {
 	(void)path;
@@ -122,7 +177,10 @@ int _open(char *path, int flags, ...)
 	/* Pretend like we always fail */
 	return -1;
 }
-
+/**
+ * @brief Wait for process
+ *
+ */
 int _wait(int *status)
 {
 	(void)status;
@@ -130,6 +188,10 @@ int _wait(int *status)
 	return -1;
 }
 
+/**
+ * @brief Remove file
+ *
+ */
 int _unlink(char *name)
 {
 	(void)name;
@@ -137,12 +199,20 @@ int _unlink(char *name)
 	return -1;
 }
 
+/**
+ * @brief Get time
+ *
+ */
 int _times(struct tms *buf)
 {
 	(void)buf;
 	return -1;
 }
 
+/**
+ * @brief Get file status
+ *
+ */
 int _stat(char *file, struct stat *st)
 {
 	(void)file;
@@ -150,6 +220,10 @@ int _stat(char *file, struct stat *st)
 	return 0;
 }
 
+/**
+ * @brief Create link
+ *
+ */
 int _link(char *old, char *new)
 {
 	(void)old;
@@ -158,12 +232,20 @@ int _link(char *old, char *new)
 	return -1;
 }
 
+/**
+ * @brief Fork process
+ *
+ */
 int _fork(void)
 {
 	errno = EAGAIN;
 	return -1;
 }
 
+/**
+ * @brief Execute program
+ *
+ */
 int _execve(char *name, char **argv, char **env)
 {
 	(void)name;
