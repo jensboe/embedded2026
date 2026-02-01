@@ -25,13 +25,19 @@ int main(void)
 	{
 		printf("Delay count: %lu\n", ++loop_counter);
 		bsp::LD_Green::set();
-		bsp::LD_Blue::set();
 		bsp::LD_Red::set();
 		Delay::ms(500);
 		bsp::LD_Green::clear();
-		bsp::LD_Blue::clear();
 		bsp::LD_Red::clear();
 		Delay::ms(500);
+		if (bsp::B1::read())
+		{
+			bsp::LD_Blue::set();
+		}
+		else
+		{
+			bsp::LD_Blue::clear();
+		}
 	}
 
 	return 0;
