@@ -12,20 +12,21 @@ But there will be support for more controller in the future.
 ```
 embedded2026/
 ├── mcal/                      # Microcontroller Abstraction Layer
-│   ├── CMakeLists.txt
 │   └── stm32/                 # STM32-specific implementations
 │       └── ...
+├── bsp/                       # Board support packages
+│   ├── nucleo-f446ze/         # support package fpr NUCLEO-F446ZE board
+│   └── ...
 ├── projects/                  # Application projects
-│   ├── nucleof446ze/
-│   │   └── blinky/           # Example project (LED blink)
+│   ├── blinky/                # Example project (LED blink)
 │   └── ...
 ├── external/                  # External dependencies
-│   ├── CMSIS_5/              # ARM CMSIS-5 core libraries
-│   └── cmsis-device-f4/      # STM32F4 device files
+│   ├── CMSIS_5/               # ARM CMSIS-5 core libraries
+│   └── cmsis-device-f4/       # STM32F4 device files
 ├── tools/                     # Build tools
 │   └── arm-gcc-toolchain.cmake
-├── CMakeLists.txt            # Root CMake configuration
-└── CMakePresets.json         # CMake preset configuration
+├── CMakeLists.txt             # Root CMake configuration
+└── CMakePresets.json          # CMake preset configuration
 ```
 
 ## 🔧 Requirements

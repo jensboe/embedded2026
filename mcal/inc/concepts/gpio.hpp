@@ -16,8 +16,8 @@ namespace mcal::concepts
 	 */
 	enum class GpioPinMode
 	{
-		Input,
-		Output,
+		Input,	//!< Input mode
+		Output, //!< Output mode
 	};
 
 	/**

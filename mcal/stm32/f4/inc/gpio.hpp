@@ -28,6 +28,8 @@ namespace stm32::f4
 	 *
 	 * @tparam GPIO_BASE              Base address of the GPIO peripheral.
 	 * @tparam RCC_AHB1ENR_GPIOxEN    Bit mask enabling the GPIO clock in RCC->AHB1ENR.
+	 *
+	 *  @todo We need a Toggle function.
 	 */
 	template <uint32_t GPIO_BASE, uint32_t RCC_AHB1ENR_GPIOxEN>
 	struct GpioImpl
@@ -141,6 +143,8 @@ namespace stm32::f4
 	 * @tparam Port   GPIO port type conforming to GpioPort concept.
 	 * @tparam Pin    GPIO pin number (0‑15).
 	 * @tparam Mode   GPIO pin mode (Input/Output).
+	 *
+	 * @todo We need a Toggle function.
 	 */
 	template <GpioPort Port, uint8_t Pin, GpioPinMode Mode = GpioPinMode::Input>
 	struct GpioPin
@@ -172,6 +176,10 @@ namespace stm32::f4
 		static void clear()
 		{
 			Port::template writeLow<Pin>();
+		}
+		static bool read()
+		{
+			return Port::template read<Pin>();
 		}
 	};
 
