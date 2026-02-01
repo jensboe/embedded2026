@@ -8,9 +8,9 @@
 
 #pragma once
 
+#include "clock.hpp"
 #include "mcal.hpp"
 #include "stm32f4xx.h"
-
 /**
  * @brief Home of STM32 microcontroller specific implementations.
  *
@@ -33,7 +33,7 @@ namespace stm32::f4
 	 *
 	 * @tparam CPU_FREQUENCY_HZ  Core clock frequency in Hertz.
 	 */
-	template <uint32_t CPU_FREQUENCY_HZ = 16'000'000>
+	template <uint32_t CPU_FREQUENCY_HZ = Clock::SystemClock_hz>
 	struct DelayImpl
 	{
 		/**

@@ -9,7 +9,7 @@
 #include <cstdio>
 using namespace stm32::f4;
 
-using Delay = DelayImpl<16'000'000>; //!< Delay utility at 16 MHz
+using Delay = DelayImpl<>; //!< Configure delay utility with System clock
 /**
  * @brief Main entry point for the blinky application.
  *

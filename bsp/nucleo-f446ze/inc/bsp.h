@@ -5,8 +5,7 @@
  */
 #pragma once
 
-#include "gpio.hpp"
-#include "utils.hpp"
+#include "f4.hpp"
 /**
  * @brief Contains board support package
  *
