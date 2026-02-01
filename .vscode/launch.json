@@ -16,7 +16,9 @@
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg"
             ],
-            "preLaunchTask": "CMake: build"
+            "preLaunchTask": "CMake: build",
+            "device": "STM32F446",
+            "svdFile": "external/svd/stm32/stm32f4/STM32F446.svd"
         },
         {
             "name": "Run to first Breakpoint",
@@ -29,7 +31,9 @@
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg"
             ],
-            "preLaunchTask": "CMake: build"
+            "preLaunchTask": "CMake: build",
+            "device": "STM32F446",
+            "svdFile": "external/svd/stm32/stm32f4/STM32F446.svd"
         },
     ]
 }
