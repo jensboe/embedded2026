@@ -1,1 +1,1 @@
-add_subdirectory(nucleof446ze)
+add_subdirectory(blinky)
