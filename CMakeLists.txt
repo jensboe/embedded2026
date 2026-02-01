@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(cmake/global.cmake)
 option(BUILD_DOC "Build documentation" ON)
 
-include(cmake/doxygen.cmake)
+# include(cmake/doxygen.cmake)
 add_subdirectory(mcal)
 add_subdirectory(bsp)
 add_subdirectory(projects)
