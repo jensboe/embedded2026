@@ -1,0 +1,18 @@
+PROJECT_NAME           = "@CMAKE_PROJECT_NAME@"
+PROJECT_NUMBER         = @PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@
+OUTPUT_DIRECTORY       = @CMAKE_CURRENT_BINARY_DIR@/doc_doxygen/
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/
+EXCLUDE                = @CMAKE_CURRENT_SOURCE_DIR@/external \
+                         @CMAKE_CURRENT_SOURCE_DIR@/build
+
+FILE_PATTERNS          = *.h \
+                         *.hpp \
+                         *.hh \
+                         *.c \
+                         *.cc \
+                         *.cpp.in \
+                         *.cpp \
+                         *.md
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = "@CMAKE_CURRENT_SOURCE_DIR@/README.md"
+GENERATE_TODOLIST      = YES
