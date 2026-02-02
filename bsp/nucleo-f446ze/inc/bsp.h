@@ -25,6 +25,7 @@ namespace bsp
 		using LD_Blue = GpioPin<GpioB, 7, GpioPinMode::Output>;	 //!< Blue LED at PB7
 		using LD_Red = GpioPin<GpioB, 14, GpioPinMode::Output>;	 //!< Red LED at PB14
 		using B1 = GpioPin<GpioC, 13, GpioPinMode::Input>;		 //!< Blue button (down left) at PC13
+		static constexpr auto supply_voltage_mV = 3300;
 		/**
 		 * @brief Clock tree with an external 8'000'000 MHz clock
 		 *
@@ -42,6 +43,35 @@ namespace bsp
 		 */
 		static inline void init()
 		{
+			// Flash latency must be configured like table 5 in RM0390
+
+			if constexpr (supply_voltage_mV > 2700)
+			{
+				if constexpr (target_system_clock_hz < 30'000'000)
+				{
+					FLASH->ACR |= FLASH_ACR_LATENCY_0WS;
+				}
+				else if constexpr (target_system_clock_hz < 60'000'000)
+				{
+					FLASH->ACR |= FLASH_ACR_LATENCY_1WS;
+				}
+				else if constexpr (target_system_clock_hz < 90'000'000)
+				{
+					FLASH->ACR |= FLASH_ACR_LATENCY_2WS;
+				}
+				else if constexpr (target_system_clock_hz < 120'000'000)
+				{
+					FLASH->ACR |= FLASH_ACR_LATENCY_3WS;
+				}
+				else if constexpr (target_system_clock_hz < 150'000'000)
+				{
+					FLASH->ACR |= FLASH_ACR_LATENCY_4WS;
+				}
+				else if constexpr (target_system_clock_hz < 180'000'000)
+				{
+					FLASH->ACR |= FLASH_ACR_LATENCY_5WS;
+				}
+			}
 			clock::init();
 			init_print();
 			LD_Green::init();
