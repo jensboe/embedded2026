@@ -47,8 +47,8 @@ namespace stm32::f4
 		 */
 		static inline void enable_dwt()
 		{
-			CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-			DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+			Register::set(CoreDebug->DEMCR, CoreDebug_DEMCR_TRCENA_Msk);
+			Register::set(DWT->CTRL, DWT_CTRL_CYCCNTENA_Msk);
 		}
 
 		/**
@@ -63,9 +63,9 @@ namespace stm32::f4
 		{
 			enable_dwt();
 			const uint32_t ticks = duration * (CPU_FREQUENCY_HZ / 1'000);
-			const uint32_t start = DWT->CYCCNT;
+			const uint32_t start = Register::read(DWT->CYCCNT);
 
-			while ((DWT->CYCCNT - start) < ticks)
+			while ((Register::read(DWT->CYCCNT) - start) < ticks)
 			{
 			}
 		}
@@ -81,9 +81,9 @@ namespace stm32::f4
 		{
 			enable_dwt();
 			const uint32_t ticks = duration * (CPU_FREQUENCY_HZ / 1'000'000);
-			const uint32_t start = DWT->CYCCNT;
+			const uint32_t start = Register::read(DWT->CYCCNT);
 
-			while ((DWT->CYCCNT - start) < ticks)
+			while ((Register::read(DWT->CYCCNT) - start) < ticks)
 			{
 			}
 		}
@@ -99,8 +99,7 @@ namespace stm32::f4
 	 */
 	void init_print()
 	{
-		DBGMCU->CR &= DBGMCU_CR_TRACE_MODE_Msk;
-		DBGMCU->CR |= DBGMCU_CR_TRACE_IOEN;
+		Register::write<DBGMCU_CR_TRACE_IOEN, DBGMCU_CR_TRACE_IOEN_Msk>(DBGMCU->CR);
 	}
 
 } // namespace stm32::f4
