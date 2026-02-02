@@ -19,13 +19,19 @@ namespace stm32::f4
 		static_assert(!(external_source.source != mcal::clock::sources::none && external_source.frequency_hz == 0),
 					  "External clock source given, but frequency is 0");
 		static_assert(target_system_clock_hz <= 180'000'000, "System clock must be lower than 180 MHz");
+
 		static constexpr uint32_t HSI_frequency_hz = 16'000'000; //!< The internal HSI runs at 16 MHz
+		static constexpr uint32_t HSE_frequency_hz =
+			external_source.frequency_hz; //!< The external  HSE is configured via @tparam external_source
 
 		static_assert((target_system_clock_hz >= 24'000'000) ||
 						  external_source.frequency_hz == target_system_clock_hz ||
 						  HSI_frequency_hz == target_system_clock_hz,
-
 					  "If HSI or HSE doesn't match target frequency, the minimum target frequency must be 24MHz");
+		static uint32_t get_system_clock()
+		{
+			return SystemCoreClock;
+		}
 		/**
 		 * @brief Possible sources for system clock
 		 *
@@ -109,6 +115,7 @@ namespace stm32::f4
 		 */
 		static void set_sysclock_source(sources source)
 		{
+			RCC->CFGR &= ~RCC_CFGR_SW_Msk;
 			RCC->CFGR |= ((static_cast<uint32_t>(source)) << RCC_CFGR_SW_Pos);
 		}
 		/**
@@ -366,12 +373,13 @@ namespace stm32::f4
 				PLL_P::set(config);
 				PLL_P::set_source(root_source());
 				PLL_P::enable();
-				set_sysclock_source(sources::PLL_R);
+				set_sysclock_source(sources::PLL_P);
 			}
 			else
 			{
 				PLL_P::disable();
 			}
+			SystemCoreClockUpdate();
 		}
 	};
 

@@ -32,16 +32,21 @@ int main(void)
 	board::init();
 
 	uint32_t loop_counter = 0;
+	printf("HSI:    %9lu Hz\n", board::clock::HSI_frequency_hz);
+	printf("HSE:    %9lu Hz\n", board::clock::HSE_frequency_hz);
+	printf("HSE:    %9d Hz\n", HSE_VALUE);
+	printf("root:   %9lu Hz\n", board::clock::root_frequency_hz());
+	printf("SysClk: %9lu Hz\n", board::clock::get_system_clock());
 
 	while (1)
 	{
 		printf("Delay count: %lu\n", ++loop_counter);
 		board::LD_Green::set();
 		board::LD_Red::set();
-		board::Delay::ms(1000);
+		board::Delay::ms(500);
 		board::LD_Green::clear();
 		board::LD_Red::clear();
-		board::Delay::ms(1000);
+		board::Delay::ms(500);
 		if (board::B1::read())
 		{
 			board::LD_Blue::set();
