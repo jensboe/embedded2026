@@ -57,7 +57,7 @@ namespace stm32::f4
 		 */
 		static void enable()
 		{
-			rcc()->AHB1ENR |= RCC_AHB1ENR_GPIOxEN;
+			Register::set(rcc()->AHB1ENR, RCC_AHB1ENR_GPIOxEN);
 		}
 
 		/**
@@ -65,7 +65,7 @@ namespace stm32::f4
 		 */
 		static void disable()
 		{
-			rcc()->AHB1ENR &= ~RCC_AHB1ENR_GPIOxEN;
+			Register::clear(rcc()->AHB1ENR, RCC_AHB1ENR_GPIOxEN);
 		}
 
 		/**
@@ -77,14 +77,17 @@ namespace stm32::f4
 		template <uint8_t pin, GpioPinMode M>
 		static void setMode()
 		{
-			gpio()->MODER &= ~(0b11 << (pin * 2));
+			constexpr uint32_t mask = 0b11 << (pin * 2);
+
 			if constexpr (M == GpioPinMode::Output)
 			{
-				gpio()->MODER |= (0b01 << (pin * 2));
+				constexpr uint32_t value = 0b01 << (pin * 2);
+				Register::write<value, mask>(gpio()->MODER);
 			}
 			else if constexpr (M == GpioPinMode::Input)
 			{
-				// nothing to to, its empty
+				constexpr uint32_t value = 0b00 << (pin * 2);
+				Register::write<value, mask>(gpio()->MODER);
 			}
 		}
 
@@ -100,7 +103,7 @@ namespace stm32::f4
 		static void writeHigh()
 		{
 			static_assert(pin < 16, "GPIO pin index must be < 16");
-			gpio()->ODR |= (1 << pin);
+			Register::set(gpio()->ODR, (1 << pin));
 		}
 
 		/**
@@ -115,7 +118,7 @@ namespace stm32::f4
 		static void writeLow()
 		{
 			static_assert(pin < 16, "GPIO pin index must be < 16");
-			gpio()->ODR &= ~(1 << pin);
+			Register::clear(gpio()->ODR, (1 << pin));
 		}
 
 		/**
@@ -129,7 +132,7 @@ namespace stm32::f4
 		static bool read()
 		{
 			static_assert(pin < 16, "GPIO pin index must be < 16");
-			return gpio()->IDR & (1 << pin);
+			return Register::read(gpio()->ODR, (1 << pin));
 		}
 	};
 

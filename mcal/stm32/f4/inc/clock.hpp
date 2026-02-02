@@ -106,17 +106,17 @@ namespace stm32::f4
 		 */
 		static sources sysclock_source()
 		{
-			return static_cast<sources>((RCC->CFGR & RCC_CFGR_SWS_Msk) >> RCC_CFGR_SWS_Pos);
+			return static_cast<sources>(Register::read(RCC->CFGR, RCC_CFGR_SWS_Msk) >> RCC_CFGR_SWS_Pos);
 		}
 		/**
 		 * @brief Set the sysclock source register
 		 *
 		 * @param source
 		 */
-		static void set_sysclock_source(sources source)
+		template <sources source>
+		static void set_sysclock_source()
 		{
-			RCC->CFGR &= ~RCC_CFGR_SW_Msk;
-			RCC->CFGR |= ((static_cast<uint32_t>(source)) << RCC_CFGR_SW_Pos);
+			Register::write<(static_cast<uint32_t>(source) << RCC_CFGR_SW_Pos), RCC_CFGR_SW_Msk>(RCC->CFGR);
 		}
 		/**
 		 * @brief PLL_P register access
@@ -199,13 +199,14 @@ namespace stm32::f4
 			 *
 			 * @param config
 			 */
-			static void set(const config &config)
+			template <PLL_P::config cfg>
+			static void set()
 			{
-				uint32_t value = 0;
-				value |= (config.M << RCC_PLLCFGR_PLLM_Pos) & RCC_PLLCFGR_PLLM_Msk;
-				value |= (config.N << RCC_PLLCFGR_PLLN_Pos) & RCC_PLLCFGR_PLLN_Msk;
-				value |= (((config.P / 2) - 1) << RCC_PLLCFGR_PLLP_Pos) & RCC_PLLCFGR_PLLP_Msk;
-				RCC->PLLCFGR = value;
+				constexpr uint32_t value = ((cfg.M << RCC_PLLCFGR_PLLM_Pos) & RCC_PLLCFGR_PLLM_Msk) |
+										   ((cfg.N << RCC_PLLCFGR_PLLN_Pos) & RCC_PLLCFGR_PLLN_Msk) |
+										   ((((cfg.P / 2) - 1) << RCC_PLLCFGR_PLLP_Pos) & RCC_PLLCFGR_PLLP_Msk);
+				constexpr uint32_t mask = RCC_PLLCFGR_PLLM_Msk | RCC_PLLCFGR_PLLN_Msk | RCC_PLLCFGR_PLLP_Msk;
+				Register::write<value, mask>(RCC->PLLCFGR);
 			}
 			/**
 			 * @brief Enables the PLL.
@@ -215,7 +216,7 @@ namespace stm32::f4
 			 */
 			static void enable()
 			{
-				RCC->CR |= RCC_CR_PLLON;
+				Register::set(RCC->CR, RCC_CR_PLLON);
 				do
 				{
 				} while (!is_ready());
@@ -226,7 +227,7 @@ namespace stm32::f4
 			 */
 			static void disable()
 			{
-				RCC->CR &= ~RCC_CR_PLLON;
+				Register::clear(RCC->CR, RCC_CR_PLLON);
 			}
 			/**
 			 * @brief Configure the input source for the PLL
@@ -239,11 +240,11 @@ namespace stm32::f4
 			{
 				if (source == sources::HSE)
 				{
-					RCC->PLLCFGR |= RCC_PLLCFGR_PLLSRC;
+					Register::set(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC);
 				}
 				else
 				{
-					RCC->PLLCFGR &= ~RCC_PLLCFGR_PLLSRC;
+					Register::clear(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC);
 				}
 			}
 			/**
@@ -254,7 +255,7 @@ namespace stm32::f4
 			 */
 			static bool is_ready()
 			{
-				return (RCC->CR & RCC_CR_PLLRDY);
+				return Register::read(RCC->CR, RCC_CR_PLLRDY);
 			}
 		};
 
@@ -271,7 +272,7 @@ namespace stm32::f4
 			static void enable()
 			{
 				set_bypass();
-				RCC->CR |= RCC_CR_HSEON;
+				Register::set(RCC->CR, RCC_CR_HSEON);
 				do
 				{
 				} while (!is_ready());
@@ -282,7 +283,7 @@ namespace stm32::f4
 			 */
 			static void disable()
 			{
-				RCC->CR &= ~RCC_CR_HSEON;
+				Register::clear(RCC->CR, RCC_CR_HSEON);
 			}
 			/**
 			 * @brief Configure the HSE Bypass in case an external clock is connected.
@@ -292,11 +293,11 @@ namespace stm32::f4
 			{
 				if (external_source.source == mcal::clock::sources::clock)
 				{
-					RCC->CR |= RCC_CR_HSEBYP;
+					Register::set(RCC->CR, RCC_CR_HSEBYP);
 				}
 				else
 				{
-					RCC->CR &= ~RCC_CR_HSEBYP;
+					Register::clear(RCC->CR, RCC_CR_HSEBYP);
 				}
 			}
 			/**
@@ -307,7 +308,7 @@ namespace stm32::f4
 			 */
 			static bool is_ready()
 			{
-				return (RCC->CR & RCC_CR_HSERDY);
+				return Register::read(RCC->CR, RCC_CR_HSERDY);
 			}
 		};
 		/**
@@ -322,7 +323,7 @@ namespace stm32::f4
 			 */
 			static void enable()
 			{
-				RCC->CR |= RCC_CR_HSION;
+				Register::set(RCC->CR, RCC_CR_HSION);
 				do
 				{
 				} while (!is_ready());
@@ -333,7 +334,7 @@ namespace stm32::f4
 			 */
 			static void disable()
 			{
-				RCC->CR &= ~RCC_CR_HSION;
+				Register::clear(RCC->CR, RCC_CR_HSION);
 			}
 			/**
 			 * @brief Checks if HSI is ready to use.
@@ -343,7 +344,7 @@ namespace stm32::f4
 			 */
 			static bool is_ready()
 			{
-				return (RCC->CR & RCC_CR_HSIRDY);
+				return Register::read(RCC->CR, RCC_CR_HSIRDY);
 			}
 		};
 
@@ -356,13 +357,13 @@ namespace stm32::f4
 			if constexpr (root_source() == sources::HSE)
 			{
 				HSE::enable();
-				set_sysclock_source(sources::HSE);
+				set_sysclock_source<sources::HSE>();
 				HSI::disable();
 			}
 			else
 			{
 				HSI::enable();
-				set_sysclock_source(sources::HSI);
+				set_sysclock_source<sources::HSI>();
 				HSE::disable();
 			}
 			if constexpr (root_frequency_hz() != target_system_clock_hz)
@@ -370,10 +371,11 @@ namespace stm32::f4
 				PLL_P::disable();
 				constexpr auto config = PLL_P::calculate(target_system_clock_hz, root_frequency_hz());
 				static_assert(config.M != 0, "Invalid PLL setting");
-				PLL_P::set(config);
+				PLL_P::template set<config>();
+				// PLL_P::set<config>();
 				PLL_P::set_source(root_source());
 				PLL_P::enable();
-				set_sysclock_source(sources::PLL_P);
+				set_sysclock_source<sources::PLL_P>();
 			}
 			else
 			{
@@ -382,13 +384,5 @@ namespace stm32::f4
 			SystemCoreClockUpdate();
 		}
 	};
-
-	/**
-	 * @brief The System clock frequency
-	 *
-	 * Since no change is implemented the System Clock frequency is always 16 MHz.
-	 *
-	 */
-	static constexpr uint32_t SystemClock_hz = 42;
 
 } // namespace stm32::f4
