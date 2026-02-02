@@ -25,6 +25,16 @@ namespace bsp
 		using LD_Blue = GpioPin<GpioB, 7, GpioPinMode::Output>;	 //!< Blue LED at PB7
 		using LD_Red = GpioPin<GpioB, 14, GpioPinMode::Output>;	 //!< Red LED at PB14
 		using B1 = GpioPin<GpioC, 13, GpioPinMode::Input>;		 //!< Blue button (down left) at PC13
+		/**
+		 * @brief Clock tree with an external 8'000'000 MHz clock
+		 *
+		 * Clocktree will be configired do match requested target_system_clock_hz
+
+		 *
+		 */
+		using clock = clock_tree<target_system_clock_hz, {8'000'000, mcal::clock::sources::clock}>;
+
+		using Delay = DelayImpl<target_system_clock_hz>; //!< Configure delay utility with System clock
 
 		/**
 		 * @brief Init every peropheral.
@@ -32,6 +42,7 @@ namespace bsp
 		 */
 		static inline void init()
 		{
+			clock::init();
 			init_print();
 			LD_Green::init();
 			LD_Blue::init();

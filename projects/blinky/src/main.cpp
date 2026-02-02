@@ -8,7 +8,10 @@
 #include "bsp.h"
 #include <cstdio>
 using namespace stm32::f4;
-
+/**
+ * @brief Use the Nucleo F446ZE board with 100 MHz system clock
+ *
+ */
 using board = bsp::nucleo_f446ze<100'000'000>;
 /**
  * @brief Main entry point for the blinky application.
@@ -17,6 +20,15 @@ using board = bsp::nucleo_f446ze<100'000'000>;
  */
 int main(void)
 {
+
+	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+	PWR->CR |= PWR_CR_VOS_0;
+	FLASH->ACR |= FLASH_ACR_DCEN;
+	FLASH->ACR |= FLASH_ACR_ICRST;
+	FLASH->ACR |= FLASH_ACR_DCEN;
+	FLASH->ACR |= FLASH_ACR_ICEN;
+	FLASH->ACR |= FLASH_ACR_PRFTEN;
+	FLASH->ACR |= (4 & FLASH_ACR_LATENCY_Msk);
 	board::init();
 
 	uint32_t loop_counter = 0;

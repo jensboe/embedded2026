@@ -33,9 +33,11 @@ namespace stm32::f4
 	 *
 	 * @tparam CPU_FREQUENCY_HZ  Core clock frequency in Hertz.
 	 */
-	template <uint32_t CPU_FREQUENCY_HZ = Clock::SystemClock_hz>
+	template <uint32_t CPU_FREQUENCY_HZ>
 	struct DelayImpl
 	{
+		static_assert(CPU_FREQUENCY_HZ >= 1'000'000,
+					  "CPU_FREQUENCY_HZ must be greater than 1 MHz to ensure working us delay.");
 		/**
 		 * @brief Enable the DWT cycle counter.
 		 *
@@ -87,7 +89,7 @@ namespace stm32::f4
 		}
 	};
 
-	static_assert(mcal::concepts::Delay<DelayImpl<>>);
+	static_assert(mcal::concepts::Delay<DelayImpl<1'000'000>>);
 
 	/**
 	 * @brief Initialize ITM/SWO output for debug printing.
