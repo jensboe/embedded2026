@@ -7,6 +7,8 @@
 
 #include "bsp.h"
 #include <cstdio>
+#include <mp-units/systems/si.h>
+
 using namespace stm32::f4;
 /**
  * @brief Use the Nucleo F446ZE board with 100 MHz system clock
@@ -20,8 +22,8 @@ using board = bsp::nucleo_f446ze<100'000'000>;
  */
 int main(void)
 {
+	using namespace mp_units::si::unit_symbols;
 	board::init();
-
 	uint32_t loop_counter = 0;
 	printf("HSI:    %9lu Hz\n", board::clock::HSI_frequency_hz);
 	printf("HSE:    %9lu Hz\n", board::clock::HSE_frequency_hz);
@@ -34,10 +36,10 @@ int main(void)
 		printf("Delay count: %lu\n", ++loop_counter);
 		board::LD_Green::set();
 		board::LD_Red::set();
-		board::Delay::ms(500);
+		board::Delay::blocking(500 * ms);
 		board::LD_Green::clear();
 		board::LD_Red::clear();
-		board::Delay::ms(500);
+		board::Delay::blocking(500 * ms);
 		if (board::B1::read())
 		{
 			board::LD_Blue::set();

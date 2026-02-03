@@ -7,19 +7,13 @@
 #pragma once
 #include <concepts>
 #include <cstdint>
+#include <mp-units/systems/si/units.h>
 namespace mcal::concepts
 {
-	/**
-	 * @brief Delay concept.
-	 *
-	 * This concept defines the required interface for a delay
-	 * implementation. A delay class must provide methods for
-	 * millisecond and microsecond delays.
-	 *
-	 */
+	using namespace mp_units;
 	template <typename T>
-	concept Delay = requires(T t, uint32_t duration) {
-		{ T::ms(duration) } -> std::same_as<void>;
-		{ T::µs(duration) } -> std::same_as<void>;
+	concept Delay = requires(T t, quantity<si::micro<si::second>, u_int32_t> duration) {
+		{ T::blocking(duration) } -> std::same_as<void>;
 	};
+
 } // namespace mcal::concepts

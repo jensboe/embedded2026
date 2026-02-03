@@ -11,6 +11,7 @@
 #include "clock.hpp"
 #include "mcal.hpp"
 #include "stm32f4xx.h"
+#include <mp-units/systems/si/units.h>
 /**
  * @brief Home of STM32 microcontroller specific implementations.
  *
@@ -25,6 +26,7 @@ namespace stm32
  */
 namespace stm32::f4
 {
+	using namespace mp_units;
 	/**
 	 * @brief Delay implementation using the Cortex‑M DWT cycle counter.
 	 *
@@ -51,36 +53,10 @@ namespace stm32::f4
 			Register::set(DWT->CTRL, DWT_CTRL_CYCCNTENA_Msk);
 		}
 
-		/**
-		 * @brief Busy‑wait delay in milliseconds.
-		 *
-		 * @param duration  Number of milliseconds to wait.
-		 *
-		 * The function computes the required number of CPU cycles and spins
-		 * until the DWT cycle counter has advanced accordingly.
-		 */
-		static void ms(uint32_t duration)
+		static void blocking(quantity<si::micro<si::second>, u_int32_t> duration)
 		{
 			enable_dwt();
-			const uint32_t ticks = duration * (CPU_FREQUENCY_HZ / 1'000);
-			const uint32_t start = Register::read(DWT->CYCCNT);
-
-			while ((Register::read(DWT->CYCCNT) - start) < ticks)
-			{
-			}
-		}
-
-		/**
-		 * @brief Busy‑wait delay in microseconds.
-		 *
-		 * @param duration  Number of microseconds to wait.
-		 *
-		 * Works identically to ms(), but with microsecond resolution.
-		 */
-		static void µs(uint32_t duration)
-		{
-			enable_dwt();
-			const uint32_t ticks = duration * (CPU_FREQUENCY_HZ / 1'000'000);
+			const uint32_t ticks = duration.numerical_value_in(si::micro<si::second>) * (CPU_FREQUENCY_HZ / 1'000'000);
 			const uint32_t start = Register::read(DWT->CYCCNT);
 
 			while ((Register::read(DWT->CYCCNT) - start) < ticks)
@@ -88,8 +64,6 @@ namespace stm32::f4
 			}
 		}
 	};
-
-	static_assert(mcal::concepts::Delay<DelayImpl<1'000'000>>);
 
 	/**
 	 * @brief Initialize ITM/SWO output for debug printing.

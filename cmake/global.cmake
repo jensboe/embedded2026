@@ -5,6 +5,7 @@ add_compile_options(
     -fdata-sections
     -ffunction-sections
     -Werror
+    $<$<COMPILE_LANGUAGE:CXX>:-fconcepts-diagnostics-depth=5>
     -fstack-usage
 )
 add_link_options(
