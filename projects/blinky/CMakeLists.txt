@@ -9,6 +9,7 @@ target_sources(blinky
 
 target_link_libraries(blinky PRIVATE
     nucleo-f446ze
+    mp-units::mp-units
 )
 target_link_options(blinky PRIVATE
     -Wl,-Map=blinky.map

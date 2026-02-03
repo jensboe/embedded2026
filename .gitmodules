@@ -7,3 +7,6 @@
 [submodule "external/svd/stm32"]
 	path = external/svd/stm32
 	url = https://github.com/modm-io/cmsis-svd-stm32
+[submodule "external/mp-units"]
+	path = external/mp-units
+	url = https://github.com/mpusz/mp-units.git
