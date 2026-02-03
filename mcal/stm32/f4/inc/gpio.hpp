@@ -180,6 +180,12 @@ namespace stm32::f4
 		{
 			Port::template writeLow<Pin>();
 		}
+		/**
+		 * @brief Read the GPIO pin state.
+		 *
+		 * @return true
+		 * @return false
+		 */
 		static bool read()
 		{
 			return Port::template read<Pin>();

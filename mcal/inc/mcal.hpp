@@ -1,50 +1,60 @@
 /**
  * @file mcal.hpp
- * @brief Main include file for mcal.
+ * @brief Main include file for the Microcontroller Abstraction Layer (MCAL).
  */
 
 #pragma once
+
+#include <cstdint>
+
+#include <mp-units/systems/si.h>
+
 #include "concepts/concepts.hpp"
-/**
- * @brief Home of the Microcontroller Abstraction Layer.
- *
- */
+
 namespace mcal
 {
 	/**
-	 * @brief Common defintion of a clock source type
+	 * @brief Shorthand for frequency in hertz.
 	 *
+	 */
+	using frequency_hz_t = mp_units::quantity<mp_units::si::hertz, std::uint32_t>;
+
+	/**
+	 * @brief Common definition of a clock source.
 	 */
 	struct clock
 	{
 		/**
-		 * @brief Sources
-		 *
+		 * @brief Available clock sources.
 		 */
-		enum class sources
+		enum class sources : std::uint8_t
 		{
-			none = 0, //!< Dummy, not existing
-			crystal,  //!< Crystal that need some internal resonator circuitry
-			clock,	  //!< Something external provides a clear clock
+			none = 0, //!< Dummy / not present
+			crystal,  //!< External crystal with resonator circuitry
+			clock,	  //!< External clock source
 		};
-		uint32_t frequency_hz; //!< Frequency
-		sources source;		   //!< Clock source
+
+		frequency_hz_t frequency_hz{}; //!< Clock frequency
+		sources source{sources::none}; //!< Clock source
 	};
+
 } // namespace mcal
 
 /**
  * @brief Register manipulation utilities.
  *
+ * Stateless helper functions for safe and expressive
+ * bit-level register access.
  */
 struct Register
 {
 	/**
 	 * @brief Set bits in a register.
 	 *
-	 * @param reg Register to be modified
+	 * @param reg  Register to be modified
 	 * @param mask Bits to be set
 	 */
-	static inline void set(volatile uint32_t &reg, uint32_t mask)
+	static inline void set(volatile std::uint32_t &reg, std::uint32_t mask) noexcept
 	{
 		reg |= mask;
 	}
@@ -52,43 +62,48 @@ struct Register
 	/**
 	 * @brief Clear bits in a register.
 	 *
-	 * @param reg Register to be modified
+	 * @param reg  Register to be modified
 	 * @param mask Bits to be cleared
 	 */
-	static inline void clear(volatile uint32_t &reg, uint32_t mask)
+	static inline void clear(volatile std::uint32_t &reg, std::uint32_t mask) noexcept
 	{
 		reg &= ~mask;
 	}
 
 	/**
-	 * @brief Write value to register with mask.
+	 * @brief Write masked value to a register.
 	 *
-	 * Clears bits inside the mask and sets bits from value inside the mask.
+	 * Clears all bits selected by @p mask and then writes
+	 * the corresponding bits from @p value.
+	 *
 	 * Example:
-	 * Before : reg = 0b0000'1111
-	 * Write<0b0000'1000, 0b0000'1100>(reg);
-	 * After  : reg = 0b0000'1011
-	 *
+	 * @code
+	 * reg = 0b0000'1111;
+	 * Register::write<0b0000'1000, 0b0000'1100>(reg);
+	 * // reg == 0b0000'1011
+	 * @endcode
 	 *
 	 * @tparam value Value to be written
-	 * @tparam mask Bits to be modified
-	 * @param reg Register to be modified
+	 * @tparam mask  Bit mask defining affected bits
+	 * @param reg    Register to be modified
 	 */
-	template <uint32_t value, uint32_t mask>
-	static inline void write(volatile uint32_t &reg)
+	template <std::uint32_t value, std::uint32_t mask>
+	static inline void write(volatile std::uint32_t &reg) noexcept
 	{
-		static_assert((value & ~mask) == 0, "Value contains bits outside of mask");
+		static_assert((value & ~mask) == 0u, "value contains bits outside of mask");
+
 		reg = (reg & ~mask) | (value & mask);
 	}
 
 	/**
-	 * @brief Read value from register with mask.
+	 * @brief Read masked value from a register.
 	 *
-	 * @param reg Register to be modified
-	 * @param mask Bits to be read (default: all bits)
-	 * @return uint32_t
+	 * @param reg  Register to be read
+	 * @param mask Bit mask defining bits of interest
+	 * @return Masked register value
 	 */
-	static inline uint32_t read(const volatile uint32_t &reg, uint32_t mask = 0xFFFFFFFFu)
+	[[nodiscard]]
+	static inline std::uint32_t read(const volatile std::uint32_t &reg, std::uint32_t mask = 0xFFFF'FFFFu) noexcept
 	{
 		return reg & mask;
 	}
