@@ -29,7 +29,8 @@ namespace bsp
 		 * @brief Supply voltage in millivolts.
 		 *
 		 */
-		static constexpr std::uint32_t supply_voltage_mV = 3300;
+		static constexpr mp_units::quantity<mp_units::si::milli<mp_units::si::volt>, uint32_t> supply_voltage_mV =
+			3300 * mp_units::si::milli<mp_units::si::volt>;
 
 		/**
 		 * @brief Clock tree configuration.
@@ -47,7 +48,7 @@ namespace bsp
 		static inline void init() noexcept
 		{
 			// Configure Flash latency according to RM0390, Table 5
-			if constexpr (supply_voltage_mV > 2700)
+			if constexpr (supply_voltage_mV > 2700 * mp_units::si::milli<mp_units::si::volt>)
 			{
 				using namespace stm32::f4;
 
