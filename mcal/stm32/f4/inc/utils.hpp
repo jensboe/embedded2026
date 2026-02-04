@@ -15,7 +15,7 @@
 
 #include "stm32f4xx.h"
 
-#include <mp-units/systems/si.h>
+#include "units.hpp"
 
 namespace stm32
 {
@@ -24,23 +24,16 @@ namespace stm32
 
 namespace stm32::f4
 {
-	using frequency_hz_t = mp_units::quantity<mp_units::si::hertz, std::uint32_t>;
-
-	/**
-	 * @brief Shorthand for microsecond duration.
-	 *
-	 */
-	using microseconds_t = mp_units::quantity<mp_units::si::micro<mp_units::si::second>, std::uint32_t>;
 
 	/**
 	 * @brief Blocking delay using the Cortex-M DWT cycle counter.
 	 *
 	 * @tparam CPU_FREQUENCY_HZ Core clock frequency.
 	 */
-	template <frequency_hz_t CPU_FREQUENCY_HZ>
+	template <utils::quantity::Hz_t CPU_FREQUENCY_HZ>
 	struct DelayImpl
 	{
-		static_assert(CPU_FREQUENCY_HZ >= (1 * mp_units::si::unit_symbols::MHz),
+		static_assert(CPU_FREQUENCY_HZ >= (1 * utils::unit::MHz),
 					  "CPU_FREQUENCY_HZ must be >= 1 MHz for µs resolution.");
 
 		/**
@@ -55,14 +48,14 @@ namespace stm32::f4
 		/**
 		 * @brief Busy-wait for a given duration.
 		 *
-		 * @param duration Delay time in microseconds.
+		 * @param duration Delay time in µs.
 		 */
-		static inline void blocking(microseconds_t duration) noexcept
+		static inline void blocking(utils::quantity::us_t duration) noexcept
 		{
 			enable_dwt();
 
-			const uint32_t ticks = duration.numerical_value_in(mp_units::si::micro<mp_units::si::second>) *
-								   (CPU_FREQUENCY_HZ.numerical_value_in(mp_units::si::hertz) / 1'000'000);
+			const uint32_t ticks = duration.numerical_value_in(utils::unit::us) *
+								   (CPU_FREQUENCY_HZ.numerical_value_in(utils::unit::Hz) / 1'000'000);
 
 			const std::uint32_t start = Register::read(DWT->CYCCNT);
 

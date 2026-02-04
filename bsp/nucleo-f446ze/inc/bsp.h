@@ -4,8 +4,7 @@
  */
 
 #pragma once
-
-#include <mp-units/systems/si.h>
+#include "units.hpp"
 
 #include "f4.hpp"
 
@@ -14,9 +13,9 @@ namespace bsp
 	/**
 	 * @brief Nucleo-F446ZE peripheral definitions.
 	 *
-	 * @tparam target_system_clock_hz Requested system clock frequency
+	 * @tparam target_system_clock Requested system clock frequency
 	 */
-	template <mp_units::quantity<mp_units::si::hertz, uint32_t> target_system_clock_hz>
+	template <utils::quantity::Hz_t target_system_clock>
 	struct nucleo_f446ze
 	{
 		using LD_Green = stm32::f4::GpioPin<stm32::f4::GpioB, 0, stm32::f4::GpioPinMode::Output>; //!< Green LED at PB0
@@ -26,20 +25,18 @@ namespace bsp
 			stm32::f4::GpioPin<stm32::f4::GpioC, 13, stm32::f4::GpioPinMode::Input>; //!< Blue user button at PC13
 
 		/**
-		 * @brief Supply voltage in millivolts.
+		 * @brief Supply voltage in mV.
 		 *
 		 */
-		static constexpr mp_units::quantity<mp_units::si::milli<mp_units::si::volt>, uint32_t> supply_voltage_mV =
-			3300 * mp_units::si::milli<mp_units::si::volt>;
+		static constexpr utils::quantity::mv_t supply_voltage = 3300 * utils::unit::mV;
 
 		/**
 		 * @brief Clock tree configuration.
 		 *
 		 */
-		using clock = stm32::f4::clock_tree<target_system_clock_hz,
-											{8 * mp_units::si::unit_symbols::MHz, mcal::clock::sources::clock}>;
+		using clock = stm32::f4::clock_tree<target_system_clock, {8 * utils::unit::MHz, mcal::clock::sources::clock}>;
 
-		using Delay = stm32::f4::DelayImpl<target_system_clock_hz>; //!< System clock based delay utility
+		using Delay = stm32::f4::DelayImpl<target_system_clock>; //!< System clock based delay utility
 
 		/**
 		 * @brief Initialize the board peripherals.
@@ -48,21 +45,21 @@ namespace bsp
 		static inline void init() noexcept
 		{
 			// Configure Flash latency according to RM0390, Table 5
-			if constexpr (supply_voltage_mV > 2700 * mp_units::si::milli<mp_units::si::volt>)
+			if constexpr (supply_voltage > 2700 * utils::unit::mV)
 			{
 				using namespace stm32::f4;
 
-				if constexpr (target_system_clock_hz < 30 * mp_units::si::unit_symbols::MHz)
+				if constexpr (target_system_clock < 30 * utils::unit::MHz)
 					FLASH->ACR |= FLASH_ACR_LATENCY_0WS;
-				else if constexpr (target_system_clock_hz < 60 * mp_units::si::unit_symbols::MHz)
+				else if constexpr (target_system_clock < 60 * utils::unit::MHz)
 					FLASH->ACR |= FLASH_ACR_LATENCY_1WS;
-				else if constexpr (target_system_clock_hz < 90 * mp_units::si::unit_symbols::MHz)
+				else if constexpr (target_system_clock < 90 * utils::unit::MHz)
 					FLASH->ACR |= FLASH_ACR_LATENCY_2WS;
-				else if constexpr (target_system_clock_hz < 120 * mp_units::si::unit_symbols::MHz)
+				else if constexpr (target_system_clock < 120 * utils::unit::MHz)
 					FLASH->ACR |= FLASH_ACR_LATENCY_3WS;
-				else if constexpr (target_system_clock_hz < 150 * mp_units::si::unit_symbols::MHz)
+				else if constexpr (target_system_clock < 150 * utils::unit::MHz)
 					FLASH->ACR |= FLASH_ACR_LATENCY_4WS;
-				else if constexpr (target_system_clock_hz < 180 * mp_units::si::unit_symbols::MHz)
+				else if constexpr (target_system_clock < 180 * utils::unit::MHz)
 					FLASH->ACR |= FLASH_ACR_LATENCY_5WS;
 			}
 

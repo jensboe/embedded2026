@@ -7,18 +7,11 @@
 
 #include <cstdint>
 
-#include <mp-units/systems/si.h>
-
 #include "concepts/concepts.hpp"
+#include "units.hpp"
 
 namespace mcal
 {
-	/**
-	 * @brief Shorthand for frequency in hertz.
-	 *
-	 */
-	using frequency_hz_t = mp_units::quantity<mp_units::si::hertz, std::uint32_t>;
-
 	/**
 	 * @brief Common definition of a clock source.
 	 */
@@ -34,8 +27,8 @@ namespace mcal
 			clock,	  //!< External clock source
 		};
 
-		frequency_hz_t frequency_hz{}; //!< Clock frequency
-		sources source{sources::none}; //!< Clock source
+		utils::quantity::Hz_t frequency{}; //!< Clock frequency
+		sources source{sources::none};	   //!< Clock source
 	};
 
 } // namespace mcal

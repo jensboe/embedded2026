@@ -10,47 +10,38 @@
 #include "mcal.hpp"
 #include "stm32f4xx.h"
 
-#include <mp-units/systems/si.h>
-
 namespace stm32::f4
 {
 	/**
-	 * @brief Shorthand for frequency in hertz.
-	 *
-	 */
-	using frequency_hz_t = mp_units::quantity<mp_units::si::hertz, std::uint32_t>;
-
-	/**
 	 * @brief Clock tree configuration.
 	 *
-	 * @tparam target_system_clock_hz Desired system clock frequency.
+	 * @tparam target_system_clock Desired system clock frequency.
 	 * @tparam external_source        Optional external clock source.
 	 */
-	template <frequency_hz_t target_system_clock_hz,
-			  mcal::clock external_source = {0 * mp_units::si::unit_symbols::Hz, mcal::clock::sources::clock}>
+	template <utils::quantity::Hz_t target_system_clock,
+			  mcal::clock external_source = {0 * utils::unit::Hz, mcal::clock::sources::clock}>
 	struct clock_tree
 	{
 		static_assert(!(external_source.source != mcal::clock::sources::none &&
-						external_source.frequency_hz == 0 * mp_units::si::unit_symbols::Hz),
+						external_source.frequency == 0 * utils::unit::Hz),
 					  "External clock source specified but frequency is zero");
 
-		static_assert(target_system_clock_hz <= 180 * mp_units::si::unit_symbols::MHz,
-					  "STM32F4 system clock must not exceed 180 MHz");
+		static_assert(target_system_clock <= 180 * utils::unit::MHz, "STM32F4 system clock must not exceed 180 MHz");
 
 		/**
 		 * @brief Internal high-speed oscillator frequency.
 		 *
 		 */
-		static constexpr frequency_hz_t HSI_frequency_hz = 16 * mp_units::si::unit_symbols::MHz;
+		static constexpr utils::quantity::Hz_t HSI_frequency = 16 * utils::unit::MHz;
 
 		/**
 		 * @brief External high-speed oscillator frequency.
 		 *
 		 */
-		static constexpr frequency_hz_t HSE_frequency_hz = external_source.frequency_hz;
+		static constexpr utils::quantity::Hz_t HSE_frequency = external_source.frequency;
 
-		static_assert((target_system_clock_hz >= 24 * mp_units::si::unit_symbols::MHz) ||
-						  (HSE_frequency_hz == target_system_clock_hz) || (HSI_frequency_hz == target_system_clock_hz),
+		static_assert((target_system_clock >= 24 * utils::unit::MHz) || (HSE_frequency == target_system_clock) ||
+						  (HSI_frequency == target_system_clock),
 					  "If PLL is required, target frequency must be >= 24 MHz");
 
 		/**
@@ -83,7 +74,7 @@ namespace stm32::f4
 		static constexpr sources root_source() noexcept
 		{
 			return (external_source.source != mcal::clock::sources::none &&
-					external_source.frequency_hz > 0 * mp_units::si::unit_symbols::Hz)
+					external_source.frequency > 0 * utils::unit::Hz)
 					   ? sources::HSE
 					   : sources::HSI;
 		}
@@ -96,9 +87,9 @@ namespace stm32::f4
 		 *
 		 * @return constexpr uint32_t
 		 */
-		static constexpr frequency_hz_t root_frequency_hz() noexcept
+		static constexpr utils::quantity::Hz_t root_frequency() noexcept
 		{
-			return (root_source() == sources::HSE) ? HSE_frequency_hz : HSI_frequency_hz;
+			return (root_source() == sources::HSE) ? HSE_frequency : HSI_frequency;
 		}
 
 		/**
@@ -180,22 +171,20 @@ namespace stm32::f4
 			 * @note This function is constexpr and can therefore be evaluated at
 			 *       compile time, enabling full static validation of clock setups.
 			 */
-			static constexpr config calculate(frequency_hz_t target, frequency_hz_t source) noexcept
+			static constexpr config calculate(utils::quantity::Hz_t target, utils::quantity::Hz_t source) noexcept
 			{
-				using namespace mp_units::si::unit_symbols;
-
 				for (std::uint32_t M = 2; M <= 63; ++M)
 				{
 					const auto clk_m = source / M;
-					if (clk_m > 2 * MHz)
+					if (clk_m > 2 * utils::unit::MHz)
 						continue;
-					if (clk_m < 1 * MHz)
+					if (clk_m < 1 * utils::unit::MHz)
 						break;
 
 					for (std::uint32_t N = 50; N <= 432; ++N)
 					{
 						const auto clk_n = clk_m * N;
-						if (clk_n < 100 * MHz || clk_n > 432 * MHz)
+						if (clk_n < 100 * utils::unit::MHz || clk_n > 432 * utils::unit::MHz)
 							continue;
 
 						for (std::uint32_t P = 2; P <= 8; P += 2)
@@ -396,11 +385,11 @@ namespace stm32::f4
 				HSE::disable();
 			}
 
-			if constexpr (root_frequency_hz() != target_system_clock_hz)
+			if constexpr (root_frequency() != target_system_clock)
 			{
 				PLL_P::disable();
 
-				constexpr auto cfg = PLL_P::calculate(target_system_clock_hz, root_frequency_hz());
+				constexpr auto cfg = PLL_P::calculate(target_system_clock, root_frequency());
 
 				static_assert(cfg.M != 0, "No valid PLL configuration found");
 
