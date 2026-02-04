@@ -1,0 +1,44 @@
+name: Build Project
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ARM GNU Toolchain 15.2.Rel1
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget tar gzip
+          wget https://developer.arm.com/-/media/Files/downloads/gnu/15.2.rel1/binrel/arm-gnu-toolchain-15.2.rel1-x86_64-arm-none-eabi.tar.xz -O arm-toolchain.tar.xz
+          tar -xf arm-toolchain.tar.xz -C /opt/
+          echo "/opt/arm-gnu-toolchain-15.2.rel1-x86_64-arm-none-eabi/bin" >> $GITHUB_PATH
+
+      - name: Verify ARM GCC Installation
+        run: |
+          arm-none-eabi-gcc --version
+          arm-none-eabi-g++ --version
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y cmake ninja-build
+
+      - name: Configure CMake
+        run: |
+          cmake --preset "Embedded2026 Debug"
+
+      - name: Build project
+        run: |
+          cmake --build --preset "Embedded2026 Debug"
+
+      - name: Check build artifacts
+        run: |
+          ls -la build/
