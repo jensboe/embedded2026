@@ -2,102 +2,74 @@
  * @file utils.hpp
  * @brief Utility implementations for STM32F4 series (delay + ITM print setup).
  *
- * This header provides a DWT‑based delay implementation and a minimal ITM‑based
- * character output function for debugging on STM32F4 microcontrollers.
+ * Provides a DWT-based blocking delay implementation and
+ * a minimal ITM/SWO character output backend.
  */
 
 #pragma once
 
+#include <cstdint>
+
 #include "clock.hpp"
 #include "mcal.hpp"
+
 #include "stm32f4xx.h"
-/**
- * @brief Home of STM32 microcontroller specific implementations.
- *
- */
+
+#include "units.hpp"
+
 namespace stm32
 {
-
+	// common STM32 utilities may live here later
 }
-/**
- * @brief Home of STM32F4 series specific implementations.
- *
- */
+
 namespace stm32::f4
 {
+
 	/**
-	 * @brief Delay implementation using the Cortex‑M DWT cycle counter.
+	 * @brief Blocking delay using the Cortex-M DWT cycle counter.
 	 *
-	 * This class provides millisecond and microsecond delays by reading the
-	 * DWT->CYCCNT register. The DWT unit must be enabled before use.
-	 *
-	 * @tparam CPU_FREQUENCY_HZ  Core clock frequency in Hertz.
+	 * @tparam CPU_FREQUENCY_HZ Core clock frequency.
 	 */
-	template <uint32_t CPU_FREQUENCY_HZ>
+	template <utils::quantity::Hz_t CPU_FREQUENCY_HZ>
 	struct DelayImpl
 	{
-		static_assert(CPU_FREQUENCY_HZ >= 1'000'000,
-					  "CPU_FREQUENCY_HZ must be greater than 1 MHz to ensure working us delay.");
+		static_assert(CPU_FREQUENCY_HZ >= (1 * utils::unit::MHz),
+					  "CPU_FREQUENCY_HZ must be >= 1 MHz for µs resolution.");
+
 		/**
 		 * @brief Enable the DWT cycle counter.
-		 *
-		 * This function enables tracing in the DEMCR register and activates
-		 * the CYCCNT counter in the DWT unit. It must be called before any
-		 * delay operation that relies on DWT->CYCCNT.
 		 */
-		static inline void enable_dwt()
+		static inline void enable_dwt() noexcept
 		{
 			Register::set(CoreDebug->DEMCR, CoreDebug_DEMCR_TRCENA_Msk);
 			Register::set(DWT->CTRL, DWT_CTRL_CYCCNTENA_Msk);
 		}
 
 		/**
-		 * @brief Busy‑wait delay in milliseconds.
+		 * @brief Busy-wait for a given duration.
 		 *
-		 * @param duration  Number of milliseconds to wait.
-		 *
-		 * The function computes the required number of CPU cycles and spins
-		 * until the DWT cycle counter has advanced accordingly.
+		 * @param duration Delay time in µs.
 		 */
-		static void ms(uint32_t duration)
+		static inline void blocking(utils::quantity::us_t duration) noexcept
 		{
 			enable_dwt();
-			const uint32_t ticks = duration * (CPU_FREQUENCY_HZ / 1'000);
-			const uint32_t start = Register::read(DWT->CYCCNT);
+
+			const uint32_t ticks = duration.numerical_value_in(utils::unit::us) *
+								   (CPU_FREQUENCY_HZ.numerical_value_in(utils::unit::Hz) / 1'000'000);
+
+			const std::uint32_t start = Register::read(DWT->CYCCNT);
 
 			while ((Register::read(DWT->CYCCNT) - start) < ticks)
 			{
-			}
-		}
-
-		/**
-		 * @brief Busy‑wait delay in microseconds.
-		 *
-		 * @param duration  Number of microseconds to wait.
-		 *
-		 * Works identically to ms(), but with microsecond resolution.
-		 */
-		static void µs(uint32_t duration)
-		{
-			enable_dwt();
-			const uint32_t ticks = duration * (CPU_FREQUENCY_HZ / 1'000'000);
-			const uint32_t start = Register::read(DWT->CYCCNT);
-
-			while ((Register::read(DWT->CYCCNT) - start) < ticks)
-			{
+				// busy wait
 			}
 		}
 	};
 
-	static_assert(mcal::concepts::Delay<DelayImpl<1'000'000>>);
-
 	/**
 	 * @brief Initialize ITM/SWO output for debug printing.
-	 *
-	 * This function enables the trace I/O pins in the DBGMCU peripheral.
-	 * It must be called before using ITM_SendChar() or __io_putchar().
 	 */
-	void init_print()
+	inline void init_print() noexcept
 	{
 		Register::write<DBGMCU_CR_TRACE_IOEN, DBGMCU_CR_TRACE_IOEN_Msk>(DBGMCU->CR);
 	}
@@ -107,17 +79,13 @@ namespace stm32::f4
 extern "C"
 {
 	/**
-	 * @brief Low‑level character output for printf redirection.
+	 * @brief Low-level character output hook for printf().
 	 *
-	 * This function redirects character output to the ITM stimulus port 0.
-	 * It is used by newlib/newlib‑nano when printf() is called.
-	 *
-	 * @param ch  Character to output.
-	 * @return Always returns 0.
+	 * Redirects output to ITM stimulus port 0.
 	 */
-	int __io_putchar(int ch)
+	inline int __io_putchar(int ch) noexcept
 	{
-		ITM_SendChar(ch);
+		ITM_SendChar(static_cast<std::uint32_t>(ch));
 		return 0;
 	}
 }

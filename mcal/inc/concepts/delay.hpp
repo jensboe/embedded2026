@@ -1,25 +1,26 @@
 /**
  * @file delay.hpp
- * @brief Concept for delay implementations.
- *
+ * @brief Concept definition for delay implementations.
  */
 
 #pragma once
+
 #include <concepts>
 #include <cstdint>
+
+#include "mcal.hpp"
+#include "units.hpp"
+
 namespace mcal::concepts
 {
 	/**
-	 * @brief Delay concept.
+	 * @brief Concept for blocking delay providers.
 	 *
-	 * This concept defines the required interface for a delay
-	 * implementation. A delay class must provide methods for
-	 * millisecond and microsecond delays.
-	 *
+	 * Requires a static blocking delay function with us resolution.
 	 */
 	template <typename T>
-	concept Delay = requires(T t, uint32_t duration) {
-		{ T::ms(duration) } -> std::same_as<void>;
-		{ T::µs(duration) } -> std::same_as<void>;
+	concept Delay = requires(utils::quantity::us_t duration) {
+		{ T::blocking(duration) } -> std::same_as<void>;
 	};
+
 } // namespace mcal::concepts

@@ -7,6 +7,10 @@ add_library(mcal INTERFACE)
 target_include_directories(mcal INTERFACE
     inc
 )
+target_link_libraries(
+    mcal INTERFACE
+    mp-units::mp-units
+)
 
 target_link_options(mcal INTERFACE
     --specs=nano.specs

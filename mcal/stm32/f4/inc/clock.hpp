@@ -1,82 +1,82 @@
 /**
  * @file clock.hpp
- * @brief Implementation of the clock tree
- *
+ * @brief STM32F4 clock tree configuration and control.
  */
+
 #pragma once
+
+#include <cstdint>
+
 #include "mcal.hpp"
 #include "stm32f4xx.h"
+
 namespace stm32::f4
 {
 	/**
-	 * @brief Contains all relevant data for clock speed.
+	 * @brief Clock tree configuration.
 	 *
-	 *
+	 * @tparam target_system_clock Desired system clock frequency.
+	 * @tparam external_source        Optional external clock source.
 	 */
-	template <uint32_t target_system_clock_hz, mcal::clock external_source = {0, mcal::clock::sources::clock}>
+	template <utils::quantity::Hz_t target_system_clock,
+			  mcal::clock external_source = {0 * utils::unit::Hz, mcal::clock::sources::clock}>
 	struct clock_tree
 	{
-		static_assert(!(external_source.source != mcal::clock::sources::none && external_source.frequency_hz == 0),
-					  "External clock source given, but frequency is 0");
-		static_assert(target_system_clock_hz <= 180'000'000, "System clock must be lower than 180 MHz");
+		static_assert(!(external_source.source != mcal::clock::sources::none &&
+						external_source.frequency == 0 * utils::unit::Hz),
+					  "External clock source specified but frequency is zero");
 
-		static constexpr uint32_t HSI_frequency_hz = 16'000'000; //!< The internal HSI runs at 16 MHz
-		static constexpr uint32_t HSE_frequency_hz =
-			external_source.frequency_hz; //!< The external  HSE is configured via @tparam external_source
+		static_assert(target_system_clock <= 180 * utils::unit::MHz, "STM32F4 system clock must not exceed 180 MHz");
 
-		static_assert((target_system_clock_hz >= 24'000'000) ||
-						  external_source.frequency_hz == target_system_clock_hz ||
-						  HSI_frequency_hz == target_system_clock_hz,
-					  "If HSI or HSE doesn't match target frequency, the minimum target frequency must be 24MHz");
-		static uint32_t get_system_clock()
+		/**
+		 * @brief Internal high-speed oscillator frequency.
+		 *
+		 */
+		static constexpr utils::quantity::Hz_t HSI_frequency = 16 * utils::unit::MHz;
+
+		/**
+		 * @brief External high-speed oscillator frequency.
+		 *
+		 */
+		static constexpr utils::quantity::Hz_t HSE_frequency = external_source.frequency;
+
+		static_assert((target_system_clock >= 24 * utils::unit::MHz) || (HSE_frequency == target_system_clock) ||
+						  (HSI_frequency == target_system_clock),
+					  "If PLL is required, target frequency must be >= 24 MHz");
+
+		/**
+		 * @brief Get the system clock object
+		 *
+		 * @return std::uint32_t
+		 */
+		[[nodiscard]]
+		static std::uint32_t get_system_clock() noexcept
 		{
 			return SystemCoreClock;
 		}
+
 		/**
-		 * @brief Possible sources for system clock
-		 *
-		 * Values are compatible with RM0390 section RCC clock configuration register SW
-		 *
+		 * @brief Possible system clock sources (RM0390 compliant).
 		 */
-		enum class sources
+		enum class sources : std::uint32_t
 		{
-			HSI = 0b00,	  //!< HSI oscillator selected as system clock
-			HSE = 0b01,	  //!< HSE oscillator selected as system clock
-			PLL_P = 0b10, //!< PLL_P selected as system clock
-			PLL_R = 0b11, //!< PLL_R selected as system clock
+			HSI = 0b00,
+			HSE = 0b01,
+			PLL_P = 0b10,
+			PLL_R = 0b11,
 		};
 
 		/**
-		 * @brief 32 kHz low-speed internal RC (LSI RC) which drives the independent watchdog and, optionally, the RTC
-		 * used for Auto-wakeup from the Stop/Standby mode.
+		 * @brief Determine root clock source
 		 *
+		 * @return constexpr sources the root clock source
 		 */
-		static constexpr uint32_t LSI_RC_frequency_hz = 32'000;
-
-		/**
-		 * @brief 32.768 kHz low-speed external crystal (LSE crystal), which optionally drives the RTC clock (RTCCLK)
-		 *
-		 */
-		static constexpr uint32_t LSI_CRY_frequency_hz = 32'768;
-
-		/**
-		 * @brief Configured root source
-		 *
-		 * HSE or HSI depending on the settings.
-		 * Not equal to sys clk source.
-		 *
-		 * @return constexpr sources
-		 */
-		static constexpr sources root_source()
+		static constexpr sources root_source() noexcept
 		{
-			if (external_source.source != mcal::clock::sources::none && external_source.frequency_hz > 0)
-			{
-				return sources::HSE;
-			}
-			else
-			{
-				return sources::HSI;
-			}
+			return (external_source.source != mcal::clock::sources::none &&
+					external_source.frequency > 0 * utils::unit::Hz)
+					   ? sources::HSE
+					   : sources::HSI;
 		}
 
 		/**
@@ -87,41 +87,45 @@ namespace stm32::f4
 		 *
 		 * @return constexpr uint32_t
 		 */
-		static constexpr uint32_t root_frequency_hz()
+		static constexpr utils::quantity::Hz_t root_frequency() noexcept
 		{
-			if (root_source() == sources::HSE)
-			{
-				return external_source.frequency_hz;
-			}
-			else
-			{
-				return HSI_frequency_hz;
-			}
+			return (root_source() == sources::HSE) ? HSE_frequency : HSI_frequency;
 		}
 
 		/**
 		 * @brief Current source (read via register)
 		 *
-		 * @return sources
+		 * @return sources the current sysclock source
 		 */
-		static sources sysclock_source()
+		static sources sysclock_source() noexcept
 		{
-			return static_cast<sources>(Register::read(RCC->CFGR, RCC_CFGR_SWS_Msk) >> RCC_CFGR_SWS_Pos);
+			return static_cast<sources>((Register::read(RCC->CFGR, RCC_CFGR_SWS_Msk) >> RCC_CFGR_SWS_Pos));
 		}
 		/**
 		 * @brief Set the sysclock source register
 		 *
-		 * @param source
+		 * @tparam source The clock source to be set
 		 */
 		template <sources source>
-		static void set_sysclock_source()
+		static void set_sysclock_source() noexcept
 		{
-			Register::write<(static_cast<uint32_t>(source) << RCC_CFGR_SW_Pos), RCC_CFGR_SW_Msk>(RCC->CFGR);
+			Register::write<(static_cast<std::uint32_t>(source) << RCC_CFGR_SW_Pos), RCC_CFGR_SW_Msk>(RCC->CFGR);
 		}
+
 		/**
-		 * @brief PLL_P register access
+		 * @brief PLL configuration parameters.
+		 *
+		 * Represents the three core parameters of the STM32F4 main PLL.
+		 * These values determine the VCO input frequency, VCO output
+		 * frequency, and the final system clock output (PLL_P).
 		 *
 		 */
+		struct config
+		{
+			uint32_t M; //!< Dividor M allowed values: 2 .. 63
+			uint32_t N; //!< Multiplyer N allowed values: 50 .. 432
+			uint32_t P; //!< Dividor P allowed values:  2, 4, 6, 8
+		};
 		struct PLL_P
 		{
 			/**
@@ -134,10 +138,11 @@ namespace stm32::f4
 			 */
 			struct config
 			{
-				uint32_t M; //!< Dividor M allowed values: 2 .. 63
-				uint32_t N; //!< Multiplyer N allowed values: 50 .. 432
-				uint32_t P; //!< Dividor P allowed values:  2, 4, 6, 8
+				std::uint32_t M; //!< 2 … 63
+				std::uint32_t N; //!< 50 … 432
+				std::uint32_t P; //!< {2,4,6,8}
 			};
+
 			/**
 			 * @brief Computes a valid PLL configuration for a desired output frequency.
 			 *
@@ -166,26 +171,25 @@ namespace stm32::f4
 			 * @note This function is constexpr and can therefore be evaluated at
 			 *       compile time, enabling full static validation of clock setups.
 			 */
-			static constexpr config calculate(uint32_t target, uint32_t source)
+			static constexpr config calculate(utils::quantity::Hz_t target, utils::quantity::Hz_t source) noexcept
 			{
-				for (uint32_t M = 2; M <= 63; ++M)
+				for (std::uint32_t M = 2; M <= 63; ++M)
 				{
-					auto const clk_m = source / M;
-					if (clk_m > 2'000'000)
+					const auto clk_m = source / M;
+					if (clk_m > 2 * utils::unit::MHz)
 						continue;
-					if (clk_m < 1'000'000)
+					if (clk_m < 1 * utils::unit::MHz)
 						break;
 
-					for (uint32_t N = 50; N <= 432; ++N)
+					for (std::uint32_t N = 50; N <= 432; ++N)
 					{
-						auto const clk_n = clk_m * N;
-						if (clk_n > 432'000'000 || clk_n < 100'000'000)
+						const auto clk_n = clk_m * N;
+						if (clk_n < 100 * utils::unit::MHz || clk_n > 432 * utils::unit::MHz)
 							continue;
 
-						for (uint32_t P = 2; P <= 8; P += 2)
+						for (std::uint32_t P = 2; P <= 8; P += 2)
 						{
-							auto const clk_p = clk_n / P;
-							if (clk_p == target)
+							if ((clk_n / P) == target)
 							{
 								return {M, N, P};
 							}
@@ -194,41 +198,47 @@ namespace stm32::f4
 				}
 				return {0, 0, 0};
 			}
+
 			/**
 			 * @brief Write the config into the PLLCFGR registers
 			 *
-			 * @param config
+			 * @tparam config
 			 */
-			template <PLL_P::config cfg>
-			static void set()
+			template <config cfg>
+			static void set() noexcept
 			{
-				constexpr uint32_t value = ((cfg.M << RCC_PLLCFGR_PLLM_Pos) & RCC_PLLCFGR_PLLM_Msk) |
-										   ((cfg.N << RCC_PLLCFGR_PLLN_Pos) & RCC_PLLCFGR_PLLN_Msk) |
-										   ((((cfg.P / 2) - 1) << RCC_PLLCFGR_PLLP_Pos) & RCC_PLLCFGR_PLLP_Msk);
-				constexpr uint32_t mask = RCC_PLLCFGR_PLLM_Msk | RCC_PLLCFGR_PLLN_Msk | RCC_PLLCFGR_PLLP_Msk;
+				constexpr std::uint32_t value = ((cfg.M << RCC_PLLCFGR_PLLM_Pos) & RCC_PLLCFGR_PLLM_Msk) |
+												((cfg.N << RCC_PLLCFGR_PLLN_Pos) & RCC_PLLCFGR_PLLN_Msk) |
+												((((cfg.P / 2) - 1) << RCC_PLLCFGR_PLLP_Pos) & RCC_PLLCFGR_PLLP_Msk);
+
+				constexpr std::uint32_t mask = RCC_PLLCFGR_PLLM_Msk | RCC_PLLCFGR_PLLN_Msk | RCC_PLLCFGR_PLLP_Msk;
+
 				Register::write<value, mask>(RCC->PLLCFGR);
 			}
+
 			/**
 			 * @brief Enables the PLL.
 			 *
 			 * Waits until PLL ready is set.
 			 *
 			 */
-			static void enable()
+			static void enable() noexcept
 			{
 				Register::set(RCC->CR, RCC_CR_PLLON);
-				do
+				while (!is_ready())
 				{
-				} while (!is_ready());
+				}
 			}
+
 			/**
 			 * @brief Disables the PLL.
 			 *
 			 */
-			static void disable()
+			static void disable() noexcept
 			{
 				Register::clear(RCC->CR, RCC_CR_PLLON);
 			}
+
 			/**
 			 * @brief Configure the input source for the PLL
 			 *
@@ -236,7 +246,7 @@ namespace stm32::f4
 			 *
 			 * @param source
 			 */
-			static constexpr void set_source(const sources source)
+			static void set_source(sources source) noexcept
 			{
 				if (source == sources::HSE)
 				{
@@ -247,13 +257,15 @@ namespace stm32::f4
 					Register::clear(RCC->PLLCFGR, RCC_PLLCFGR_PLLSRC);
 				}
 			}
+
 			/**
 			 * @brief Checks if PLL is ready to use.
 			 *
 			 * @return true PLL is ready to use.
 			 * @return false PLL is NOT ready to use.
 			 */
-			static bool is_ready()
+			[[nodiscard]]
+			static bool is_ready() noexcept
 			{
 				return Register::read(RCC->CR, RCC_CR_PLLRDY);
 			}
@@ -269,27 +281,29 @@ namespace stm32::f4
 			 * @brief Enables HSE. Set bypass option if needed
 			 *
 			 */
-			static void enable()
+			static void enable() noexcept
 			{
 				set_bypass();
 				Register::set(RCC->CR, RCC_CR_HSEON);
-				do
+				while (!is_ready())
 				{
-				} while (!is_ready());
+				}
 			}
+
 			/**
 			 * @brief Disables HSE.
 			 *
 			 */
-			static void disable()
+			static void disable() noexcept
 			{
 				Register::clear(RCC->CR, RCC_CR_HSEON);
 			}
+
 			/**
 			 * @brief Configure the HSE Bypass in case an external clock is connected.
 			 *
 			 */
-			static void set_bypass()
+			static void set_bypass() noexcept
 			{
 				if (external_source.source == mcal::clock::sources::clock)
 				{
@@ -300,17 +314,20 @@ namespace stm32::f4
 					Register::clear(RCC->CR, RCC_CR_HSEBYP);
 				}
 			}
+
 			/**
 			 * @brief Checks if HSE is ready to use.
 			 *
 			 * @return true HSE is ready to use.
 			 * @return false HSE is NOT ready to use.
 			 */
-			static bool is_ready()
+			[[nodiscard]]
+			static bool is_ready() noexcept
 			{
 				return Register::read(RCC->CR, RCC_CR_HSERDY);
 			}
 		};
+
 		/**
 		 * @brief HSI register access
 		 *
@@ -321,18 +338,18 @@ namespace stm32::f4
 			 * @brief Enables HSI.
 			 *
 			 */
-			static void enable()
+			static void enable() noexcept
 			{
 				Register::set(RCC->CR, RCC_CR_HSION);
-				do
+				while (!is_ready())
 				{
-				} while (!is_ready());
+				}
 			}
 			/**
 			 * @brief Disables HSI.
 			 *
 			 */
-			static void disable()
+			static void disable() noexcept
 			{
 				Register::clear(RCC->CR, RCC_CR_HSION);
 			}
@@ -342,7 +359,8 @@ namespace stm32::f4
 			 * @return true HSI is ready to use.
 			 * @return false HSI is NOT ready to use.
 			 */
-			static bool is_ready()
+			[[nodiscard]]
+			static bool is_ready() noexcept
 			{
 				return Register::read(RCC->CR, RCC_CR_HSIRDY);
 			}
@@ -352,7 +370,7 @@ namespace stm32::f4
 		 * @brief Initialise the clock tree
 		 *
 		 */
-		static void init(void)
+		static void init() noexcept
 		{
 			if constexpr (root_source() == sources::HSE)
 			{
@@ -366,21 +384,26 @@ namespace stm32::f4
 				set_sysclock_source<sources::HSI>();
 				HSE::disable();
 			}
-			if constexpr (root_frequency_hz() != target_system_clock_hz)
+
+			if constexpr (root_frequency() != target_system_clock)
 			{
 				PLL_P::disable();
-				constexpr auto config = PLL_P::calculate(target_system_clock_hz, root_frequency_hz());
-				static_assert(config.M != 0, "Invalid PLL setting");
-				PLL_P::template set<config>();
-				// PLL_P::set<config>();
+
+				constexpr auto cfg = PLL_P::calculate(target_system_clock, root_frequency());
+
+				static_assert(cfg.M != 0, "No valid PLL configuration found");
+
+				PLL_P::template set<cfg>();
 				PLL_P::set_source(root_source());
 				PLL_P::enable();
+
 				set_sysclock_source<sources::PLL_P>();
 			}
 			else
 			{
 				PLL_P::disable();
 			}
+
 			SystemCoreClockUpdate();
 		}
 	};

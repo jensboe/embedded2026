@@ -1,43 +1,49 @@
 /**
  * @file main.cpp
- * @brief  Simple blinky application for Nucleo-F446ZE using GPIO and DWT delay.
-
- *
+ * @brief Simple blinky application for Nucleo-F446ZE using GPIO and DWT delay.
  */
 
 #include "bsp.h"
+#include "mcal.hpp"
+#include "utils.hpp"
 #include <cstdio>
-using namespace stm32::f4;
+
 /**
- * @brief Use the Nucleo F446ZE board with 100 MHz system clock
- *
+ * @brief Use the Nucleo F446ZE board with 100 MHz system clock.
  */
-using board = bsp::nucleo_f446ze<100'000'000>;
+using board = bsp::nucleo_f446ze<100 * utils::unit::MHz>;
+
 /**
- * @brief Main entry point for the blinky application.
- *
- * @return int
+ * @brief Main entry point.
  */
-int main(void)
+int main() noexcept
 {
+	// Initialize board: clocks, GPIOs, delay, ITM
 	board::init();
 
-	uint32_t loop_counter = 0;
-	printf("HSI:    %9lu Hz\n", board::clock::HSI_frequency_hz);
-	printf("HSE:    %9lu Hz\n", board::clock::HSE_frequency_hz);
-	printf("HSE:    %9d Hz\n", HSE_VALUE);
-	printf("root:   %9lu Hz\n", board::clock::root_frequency_hz());
+	std::uint32_t loop_counter = 0;
+
+	// Print system clock frequency via ITM/printf
+	printf("HSI:    %9lu Hz\n", board::clock::HSI_frequency.numerical_value_in(utils::unit::Hz));
+	printf("HSE:    %9lu Hz\n", board::clock::HSE_frequency.numerical_value_in(utils::unit::Hz));
+	printf("root:   %9lu Hz\n", board::clock::root_frequency().numerical_value_in(utils::unit::Hz));
+
 	printf("SysClk: %9lu Hz\n", board::clock::get_system_clock());
 
-	while (1)
+	while (true)
 	{
 		printf("Delay count: %lu\n", ++loop_counter);
+
+		// Toggle Green and Red LEDs
 		board::LD_Green::set();
 		board::LD_Red::set();
-		board::Delay::ms(500);
+		board::Delay::blocking(500 * utils::unit::ms);
+
 		board::LD_Green::clear();
 		board::LD_Red::clear();
-		board::Delay::ms(500);
+		board::Delay::blocking(500 * utils::unit::ms);
+
+		// Read user button (B1) and control Blue LED
 		if (board::B1::read())
 		{
 			board::LD_Blue::set();
@@ -48,5 +54,6 @@ int main(void)
 		}
 	}
 
+	// Never reached
 	return 0;
 }
