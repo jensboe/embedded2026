@@ -10,7 +10,6 @@
 #pragma once
 #include <cstdint>
 #include <mp-units/systems/si.h>
-
 namespace utils
 {
 	/**
@@ -20,26 +19,26 @@ namespace utils
 	 */
 	namespace unit
 	{
-		/** @brief Hertz (frequency). */
-		inline constexpr auto Hz = mp_units::si::hertz;
-
-		/** @brief Megahertz (10^6 Hz). */
-		inline constexpr auto MHz = mp_units::si::mega<mp_units::si::hertz>;
-
 		/** @brief Second (time). */
 		inline constexpr auto s = mp_units::si::second;
 
 		/** @brief Millisecond (10^-3 s). */
-		inline constexpr auto ms = mp_units::si::milli<mp_units::si::second>;
+		inline constexpr auto ms = mp_units::si::milli<s>;
 
 		/** @brief Microsecond (10^-6 s). */
-		inline constexpr auto us = mp_units::si::micro<mp_units::si::second>;
+		inline constexpr auto us = mp_units::si::micro<s>;
+
+		/** @brief Hertz (frequency). */
+		inline constexpr auto Hz = mp_units::one / s;
+
+		/** @brief Megahertz (10^6 Hz). */
+		inline constexpr auto MHz = mp_units::one / us;
 
 		/** @brief Volt (electric potential). */
 		inline constexpr auto V = mp_units::si::volt;
 
 		/** @brief Millivolt (10^-3 V). */
-		inline constexpr auto mV = mp_units::si::milli<mp_units::si::volt>;
+		inline constexpr auto mV = mp_units::si::milli<V>;
 	} // namespace unit
 
 	/**
