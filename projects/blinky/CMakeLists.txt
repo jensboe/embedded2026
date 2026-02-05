@@ -11,5 +11,5 @@ target_link_libraries(blinky PRIVATE
     nucleo-f446ze
 )
 target_link_options(blinky PRIVATE
-    -Wl,-Map=blinky.map
+    -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/blinky.map
 )
