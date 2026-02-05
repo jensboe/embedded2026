@@ -1,0 +1,22 @@
+name: Build Project
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_debug:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/jensboe/arm-cortex-build:v1.6.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build debug
+        run: |
+          cmake --workflow --preset "Debug"

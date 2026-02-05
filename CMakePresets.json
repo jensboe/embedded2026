@@ -2,26 +2,59 @@
     "version": 8,
     "configurePresets": [
         {
-            "name": "Embedded2026 Debug",
-            "displayName": "Debug Build for Embedded2026",
+            "name": "Debug",
+            "displayName": "Debug Configuration",
             "description": "Sets Ninja generator, build and install directory",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build",
+            "binaryDir": "${sourceDir}/build/debug",
             "toolchainFile": "${sourceDir}/tools/arm-gcc-toolchain.cmake",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
-            "name": "Embedded2026 Release",
-            "displayName": "Release Build for Embedded2026",
+            "name": "Release",
+            "displayName": "Release Configuration",
             "description": "Sets Ninja generator, build and install directory",
             "generator": "Ninja",
-            "binaryDir": "${sourceDir}/build",
+            "binaryDir": "${sourceDir}/build/release",
             "toolchainFile": "${sourceDir}/tools/arm-gcc-toolchain.cmake",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "RelWithDebInfo"
             }
         }
-    ]
+    ],
+    "buildPresets": [
+        {
+            "name": "Debug",
+            "configurePreset": "Debug",
+            "targets": [
+                "blinky"
+            ]
+        },
+        {
+            "name": "Release",
+            "configurePreset": "Release",
+            "targets": [
+                "blinky"
+            ]
+        }
+    ],
+    "workflowPresets": [
+    {
+        "name": "Debug",
+        "steps": [
+            { "type": "configure", "name": "Debug" },
+            { "type": "build",     "name": "Debug" }
+        ]
+    },
+    {
+        "name": "Release",
+        "steps": [
+            { "type": "configure", "name": "Release" },
+            { "type": "build",     "name": "Release" }
+        ]
+    }
+]
+
 }

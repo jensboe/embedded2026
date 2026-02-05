@@ -16,4 +16,4 @@ target_link_options(mcal INTERFACE
     --specs=nano.specs
 )
 
-add_subdirectory(STM32)
+add_subdirectory(stm32)
