@@ -27,9 +27,18 @@ jobs:
           arm-none-eabi-gcc --version
           arm-none-eabi-g++ --version
 
-      - name: Install dependencies
+      - name: Remove system CMake
+        run: sudo apt-get purge -y cmake
+
+      - name: Install CMake 4.2.3 (binary)
         run: |
-          sudo apt-get install -y cmake ninja-build
+          version=4.2.3
+          wget https://github.com/Kitware/CMake/releases/download/v$version/cmake-$version-linux-x86_64.tar.gz -O cmake.tar.gz
+          sudo tar -xzf cmake.tar.gz -C /opt/
+          echo "/opt/cmake-$version-linux-x86_64/bin" >> $GITHUB_PATH
+
+      - name: Verify CMake Installation
+        run: cmake --version
 
       - name: Configure CMake
         run: |
