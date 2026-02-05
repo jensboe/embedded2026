@@ -42,14 +42,6 @@ jobs:
       - name: Verify CMake Installation
         run: cmake --version
 
-      - name: Configure CMake
+      - name: Build debug
         run: |
-          cmake --preset "Embedded2026 Debug"
-
-      - name: Build project
-        run: |
-          cmake --build --preset "Embedded2026 Debug"
-
-      - name: Check build artifacts
-        run: |
-          ls -la build/
+          cmake --workflow --preset "Debug"
