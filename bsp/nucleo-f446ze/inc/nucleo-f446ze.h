@@ -1,5 +1,5 @@
 /**
- * @file bsp.h
+ * @file nucleo-f446ze.h
  * @brief Board support package for Nucleo-F446ZE
  */
 

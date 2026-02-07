@@ -30,7 +30,8 @@
             "configurePreset": "Debug",
             "targets": [
                 "blinky",
-                "rtos-blinky"
+                "rtos-blinky",
+                "modellbahn"
             ]
         },
         {
@@ -38,7 +39,8 @@
             "configurePreset": "Release",
             "targets": [
                 "blinky",
-                "rtos-blinky"
+                "rtos-blinky",
+                "modellbahn"
             ]
         }
     ],
