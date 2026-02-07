@@ -24,12 +24,15 @@ namespace bsp
 				stm32::f4::GpioPin<stm32::f4::GpioG, 2, stm32::f4::GpioPinMode::Output>; //!< Green LED at PB0
 			using LD_green =
 				stm32::f4::GpioPin<stm32::f4::GpioG, 3, stm32::f4::GpioPinMode::Output>; //!< Green LED at PB0
+			using LD_alive =
+				stm32::f4::GpioPin<stm32::f4::GpioE, 0, stm32::f4::GpioPinMode::Output>; //!< Green LED at PB0
 			static inline void init() noexcept
 			{
 				base::init();
 				LD_red::init();
 				LD_yellow::init();
 				LD_green::init();
+				LD_alive::init();
 			}
 		};
 	} // namespace modellbahn

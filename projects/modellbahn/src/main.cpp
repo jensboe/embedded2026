@@ -35,6 +35,7 @@ int main() noexcept
 		printf("Delay count: %lu\n", ++loop_counter);
 
 		// Toggle Green and Red LEDs
+		board::LD_alive::set();
 		board::base::LD_Green::set();
 		board::base::LD_Red::set();
 		board::LD_red::clear();
@@ -46,6 +47,8 @@ int main() noexcept
 		board::LD_red::set();
 		board::LD_yellow::set();
 		board::LD_green::set();
+		board::LD_alive::clear();
+
 		board::base::Delay::blocking(500 * utils::unit::ms);
 
 		// Read user button (B1) and control Blue LED
