@@ -83,7 +83,7 @@ extern "C"
 	 *
 	 * Redirects output to ITM stimulus port 0.
 	 */
-	inline int __io_putchar(int ch) noexcept
+	int __io_putchar(int ch) noexcept
 	{
 		ITM_SendChar(static_cast<std::uint32_t>(ch));
 		return 0;
