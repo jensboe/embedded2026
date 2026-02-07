@@ -1,5 +1,5 @@
 # Embedded2026
-
+[![Build Project](https://github.com/jensboe/embedded2026/actions/workflows/build.yml/badge.svg)](https://github.com/jensboe/embedded2026/actions/workflows/build.yml)
 The project provides a modular architecture for microcontroller  development.
 Currently focused on STM32F4 and tested with a STM32F446 controller.
 But there will be support for more controller in the future.
