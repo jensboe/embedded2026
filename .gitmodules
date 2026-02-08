@@ -10,3 +10,6 @@
 [submodule "external/mp-units"]
 	path = external/mp-units
 	url = https://github.com/mpusz/mp-units.git
+[submodule "external/FreeRTOS-Kernel"]
+	path = external/FreeRTOS-Kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel

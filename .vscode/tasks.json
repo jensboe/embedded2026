@@ -5,9 +5,6 @@
 			"type": "cmake",
 			"label": "CMake: build",
 			"command": "build",
-			"targets": [
-				"all"
-			],
 			"preset": "__defaultBuildPreset__",
 			"group": "build",
 			"problemMatcher": [],

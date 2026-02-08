@@ -29,32 +29,45 @@
             "name": "Debug",
             "configurePreset": "Debug",
             "targets": [
-                "blinky"
+                "blinky",
+                "rtos-blinky"
             ]
         },
         {
             "name": "Release",
             "configurePreset": "Release",
             "targets": [
-                "blinky"
+                "blinky",
+                "rtos-blinky"
             ]
         }
     ],
     "workflowPresets": [
-    {
-        "name": "Debug",
-        "steps": [
-            { "type": "configure", "name": "Debug" },
-            { "type": "build",     "name": "Debug" }
-        ]
-    },
-    {
-        "name": "Release",
-        "steps": [
-            { "type": "configure", "name": "Release" },
-            { "type": "build",     "name": "Release" }
-        ]
-    }
-]
-
+        {
+            "name": "Debug",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "Debug"
+                },
+                {
+                    "type": "build",
+                    "name": "Debug"
+                }
+            ]
+        },
+        {
+            "name": "Release",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "Release"
+                },
+                {
+                    "type": "build",
+                    "name": "Release"
+                }
+            ]
+        }
+    ]
 }
