@@ -12,9 +12,6 @@ target_compile_definitions(nucleo-f446ze INTERFACE
 target_link_libraries(nucleo-f446ze INTERFACE
     cmsisdevicef4
 )
-target_sources(cmsisdevicef4 PRIVATE
-    ${CMAKE_SOURCE_DIR}/external/cmsis-device-f4/Source/Templates/gcc/startup_stm32f446xx.s
-)
 
 target_compile_definitions(cmsisdevicef4 PRIVATE
     STM32F446xx

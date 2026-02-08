@@ -37,7 +37,7 @@
             }
         },
         {
-            "name": "Run to first Breakpoint",
+            "name": "Debug RTOS",
             "cwd": "${workspaceFolder}",
             "executable": "${command:cmake.launchTargetPath}",
             "request": "launch",
@@ -50,17 +50,19 @@
             "preLaunchTask": "CMake: build",
             "device": "STM32F446",
             "svdFile": "external/svd/stm32/stm32f4/STM32F446.svd",
+            "rtos": "FreeRTOS",
             "swoConfig": {
                 "enabled": true,
                 "source": "probe",
                 "swoFrequency": 2000000,
-                "cpuFrequency": 16000000,
+                "cpuFrequency": 100000000,
                 "decoders": [
                     {
                         "port": 0,
                         "type": "console",
                         "label": "SWO output",
-                        "encoding": "ascii"
+                        "encoding": "ascii",
+                        "timestamp": true
                     }
                 ]
             }

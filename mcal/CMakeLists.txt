@@ -3,16 +3,20 @@ target_include_directories(CMSIS_5 INTERFACE
     ${CMAKE_SOURCE_DIR}/external/CMSIS_5/CMSIS/Core/Include
 )
 
-add_library(mcal INTERFACE)
-target_include_directories(mcal INTERFACE
+add_library(mcal)
+target_include_directories(mcal PUBLIC
     inc
 )
+target_sources(mcal PUBLIC
+    src/syscalls.c
+    src/sysmem.c
+)
 target_link_libraries(
-    mcal INTERFACE
+    mcal PUBLIC
     mp-units::mp-units
 )
 
-target_link_options(mcal INTERFACE
+target_link_options(mcal PUBLIC
     --specs=nano.specs
 )
 
