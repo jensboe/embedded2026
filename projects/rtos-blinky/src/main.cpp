@@ -16,15 +16,20 @@ using board = bsp::nucleo_f446ze<100 * utils::unit::MHz>;
 
 /*-----------------------------------------------------------*/
 
-static void blink_blue(void *parameters)
+static void blue_button(void *parameters)
 {
 	(void)parameters;
 	for (;;)
 	{
-		board::LD_Blue::set();
-		vTaskDelay(100);
-		board::LD_Blue::clear();
-		vTaskDelay(100);
+		if (board::B1::read())
+		{
+			board::LD_Blue::set();
+		}
+		else
+		{
+			board::LD_Blue::clear();
+		}
+		vTaskDelay(2);
 	}
 }
 
@@ -52,9 +57,9 @@ int main() noexcept
 	static StaticTask_t greenTaskTCB;
 	static StackType_t greenTaskStack[configMINIMAL_STACK_SIZE];
 
-	(void)xTaskCreateStatic(blink_blue, "blue", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1U,
+	(void)xTaskCreateStatic(blue_button, "Blue button", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1U,
 							&(blueTaskStack[0]), &(blueTaskTCB));
-	(void)xTaskCreateStatic(blink_green, "green", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1U,
+	(void)xTaskCreateStatic(blink_green, "Green blinky", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES - 1U,
 							&(greenTaskStack[0]), &(greenTaskTCB));
 	vTaskStartScheduler();
 	return 0;
