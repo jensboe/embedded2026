@@ -3,8 +3,8 @@
  * @brief Simple blinky application for Nucleo-F446ZE using GPIO and DWT delay.
  */
 
-#include "bsp.h"
 #include "mcal.hpp"
+#include "nucleo-f446ze.h"
 #include "utils.hpp"
 #include <FreeRTOS.h>
 #include <cstdio>
