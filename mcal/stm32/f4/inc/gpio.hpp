@@ -132,7 +132,7 @@ namespace stm32::f4
 		static bool read()
 		{
 			static_assert(pin < 16, "GPIO pin index must be < 16");
-			return Register::read(gpio()->ODR, (1 << pin));
+			return Register::read(gpio()->IDR, (1 << pin));
 		}
 	};
 
