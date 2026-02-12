@@ -137,7 +137,7 @@ int _close(int file)
  * @brief File status
  *
  */
-int _fstat(int file, struct stat *st)
+__attribute__((used)) int _fstat(int file, struct stat *st)
 {
 	(void)file;
 	st->st_mode = S_IFCHR;
@@ -148,7 +148,7 @@ int _fstat(int file, struct stat *st)
  * @brief Is a terminal
  *
  */
-int _isatty(int file)
+__attribute__((used)) int _isatty(int file)
 {
 	(void)file;
 	return 1;
