@@ -52,6 +52,7 @@ static void blink_green(void *parameters)
 int main() noexcept
 {
 	board::init();
+	printf("RTOS Blinky started.\n");
 	static StaticTask_t blueTaskTCB;
 	static StackType_t blueTaskStack[configMINIMAL_STACK_SIZE];
 	static StaticTask_t greenTaskTCB;

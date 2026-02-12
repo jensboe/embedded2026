@@ -40,7 +40,7 @@ extern int __io_putchar(int ch) __attribute__((weak));
  */
 extern int __io_getchar(void) __attribute__((weak));
 
-char *__env[1] = {0};
+char *__env[1] = {0};	//!< Minimal environment pointer
 char **environ = __env; //!< Environment pointer
 
 /**

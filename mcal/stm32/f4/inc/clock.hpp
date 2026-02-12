@@ -126,6 +126,10 @@ namespace stm32::f4
 			uint32_t N; //!< Multiplyer N allowed values: 50 .. 432
 			uint32_t P; //!< Dividor P allowed values:  2, 4, 6, 8
 		};
+		/**
+		 * @brief Computes a valid PLL configuration for a desired output frequency.
+		 *
+		 */
 		struct PLL_P
 		{
 			/**
